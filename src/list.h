@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-#ifdef CANARY_LIST_PROTECTION || CANARY_DATA_PROTECTION || HASH_PROTECTION
-#define PROTECtION
+#ifdef  CANARY_LIST_PROTECTION || CANARY_DATA_PROTECTION || HASH_PROTECTION
+#define PROTECTION
 #endif
 
 struct List_elem

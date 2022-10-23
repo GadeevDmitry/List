@@ -1,5 +1,5 @@
-#ifndef VAR_DECLARATION
-#define VAR_DECLARATION
+#ifndef VAR_DECLARATION_H
+#define VAR_DECLARATION_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,4 +86,4 @@ static void var_dtor(var_declaration *const var, const var_declaration *const po
     var->     line = poison->     line;
 }
 
-#endif //VAR_DECLARATION
+#endif //VAR_DECLARATION_H

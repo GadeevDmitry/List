@@ -20,33 +20,20 @@
 #define LOG_FILE "log.html"
 #endif
 
-static FILE *LOG_STREAM = nullptr;
-
 /*___________________________FUNCTION_DECLARATION___________________________*/
 
-static int  OPEN_LOG_STREAM  ();
-
-static void CLOSE_LOG_STREAM ();
 static void log_message      (const char *fmt, ...);
 static void log_error        (const char *fmt, ...);
 static void log_char_ptr     (const char *str_name, const char         *str, const char   *poison, const uint8_t len);
 static void log_int64_t      (const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len);
 
+static int  OPEN_LOG_STREAM  ();
+static void CLOSE_LOG_STREAM ();
+
 /*__________________________________________________________________________*/
 
-/**
-*   @brief Closes log-file. Called by using atexit().
-*
-*   @return 1 if closing is OK. Does abort() if an ERROR found.
-*/
 
-static void CLOSE_LOG_STREAM()
-{
-    assert (LOG_STREAM != nullptr);
-
-    fprintf(LOG_STREAM, "\"%s\" CLOSING IS OK\n\n", LOG_FILE);
-    fclose (LOG_STREAM);
-}
+static FILE *LOG_STREAM = nullptr;
 
 /**
 *   @brief Opens log-file. Ckecks if opening is OK and in this case prints message in the log-file.
@@ -55,7 +42,7 @@ static void CLOSE_LOG_STREAM()
 *   @return 1 if checking is OK. Does abort() if an ERROR found.
 */
 
-static int OPEN_LOG_STREAM()
+int OPEN_LOG_STREAM()
 {
     LOG_STREAM = fopen(LOG_FILE, "w");
 
@@ -69,6 +56,20 @@ static int OPEN_LOG_STREAM()
     return 1;
 }
 
+/**
+*   @brief Closes log-file. Called by using atexit().
+*
+*   @return 1 if closing is OK. Does abort() if an ERROR found.
+*/
+
+void CLOSE_LOG_STREAM()
+{
+    assert (LOG_STREAM != nullptr);
+
+    fprintf(LOG_STREAM, "\"%s\" CLOSING IS OK\n\n", LOG_FILE);
+    fclose (LOG_STREAM);
+}
+
 static int _OPEN_CLOSE_LOG_STREAM = OPEN_LOG_STREAM();
 
 /**
@@ -79,7 +80,7 @@ static int _OPEN_CLOSE_LOG_STREAM = OPEN_LOG_STREAM();
 *   @return nothing
 */
 
-static void log_message(const char *fmt, ...)
+void log_message(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -99,7 +100,7 @@ static void log_message(const char *fmt, ...)
 *   @return nothing
 */
 
-static void log_char_ptr(const char *str_name, const char *str, const char *poison, const uint8_t len)
+void log_char_ptr(const char *str_name, const char *str, const char *poison, const uint8_t len)
 {
     assert(str_name != nullptr);
 
@@ -119,7 +120,7 @@ static void log_char_ptr(const char *str_name, const char *str, const char *pois
 *   @return nothing
 */
 
-static void log_int64_t(const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len)
+void log_int64_t(const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len)
 {
     assert(num_name != nullptr);
 
@@ -135,7 +136,7 @@ static void log_int64_t(const char *num_name, const int64_t num_value, const int
 *   @return nothing
 */
 
-static void log_error(const char *fmt, ...)
+void log_error(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
