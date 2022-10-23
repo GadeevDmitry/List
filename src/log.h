@@ -11,7 +11,7 @@
 #define RED    "<font color=DarkRed>"
 #define GREEN  "<font color=LimeGreen>"
 #define BLUE   "<font color=MediumBlue>"
-#define POISON "<font color=Olive>"
+#define OLIVE  "<font color=Olive>"
 #define BLACK  "<font color=Black>"
 #define CANCEL "</font>\n"
 #define USUAL  BLACK
@@ -108,7 +108,7 @@ void log_char_ptr(const char *str_name, const char *str, const char *poison, con
     assert(str_name != nullptr);
 
     if      (str == nullptr)  log_message("%-*s : " BLUE   "\"nullptr\"\n" CANCEL, len, str_name);
-    else if (str ==  poison)  log_message("%-*s : " POISON "\"POISON\"\n"  CANCEL, len, str_name);
+    else if (str ==  poison)  log_message("%-*s : " OLIVE  "\"POISON\"\n"  CANCEL, len, str_name);
     else                      log_message("%-*s : " USUAL  "\"%s\"\n"      CANCEL, len, str_name, str);
 }
 
@@ -127,7 +127,7 @@ void log_int64_t(const char *num_name, const int64_t num_value, const int64_t po
 {
     assert(num_name != nullptr);
 
-    if (num_value == poison) log_message("%-*s = " POISON "\"POISON\"\n" CANCEL, len, num_name);
+    if (num_value == poison) log_message("%-*s = " OLIVE  "\"POISON\"\n" CANCEL, len, num_name);
     else                     log_message("%-*s = %lld\n"                       , len, num_name, num_value);
 }
 
