@@ -36,9 +36,6 @@
 
 struct List_elem
 {
-    int32_t elem_size;
-    int32_t index;
-
     bool is_free;
 
     void *prev;
@@ -69,8 +66,9 @@ struct List
     int32_t data_size;
     int32_t data_capacity;
     int32_t elem_size;
-
     int32_t first_free;
+    
+    bool is_ctored;
 
     #if PROTECTION
     var_declaration info;
@@ -107,6 +105,7 @@ enum LIST_VERDICT
     INVALID_CAPACITY                                ,
     INVALID_FIRST_FREE                              ,
     INVALID_DATA                                    ,
+    INVALID_CTOR                                    ,
 
     LIST_NULLPTR
 };
@@ -138,14 +137,15 @@ static const char *verdict_message[] =
     "CAPACITY   LESS THAN  SIZE"                    ,
     "FIRST_FREE MORE THAN (SIZE - 1)"               ,
     "INVALID DATA"                                  ,
+    "LIST HAS BEEN ALREADY CTORED"                  ,
 
     "POINTER TO THE LIST IS NULLPTR"
 };
 
-enum CANARY
+enum CANARY_VALUE
 {
-    CANARY_LIST = 0xCAFEBABE                        ,
-    CANARY_DATA = 0xCAFED00D
+    CANARY_LIST_VALUE = 0xCAFEBABE                  ,
+    CANARY_DATA_VALUE = 0xCAFED00D
 };
 
 /*___________________________FUNCTION_DECLARATION___________________________*/
@@ -165,13 +165,13 @@ uint32_t List_verify(List *const lst)
     }
 
     #if CANARY_LIST_PROTECTION
-    if (lst->left_list_canary  != CANARY_LIST)       err = err | FAILED_LIST_CANARY_PROTECTION_LEFT  ;
-    if (lst->right_list_canary != CANARY_LIST)       err = err | FAILED_LIST_CANARY_PROTECTION_RIGHT ;
+    if (lst->left_list_canary  != CANARY_LIST_VALUE) err = err | FAILED_LIST_CANARY_PROTECTION_LEFT  ;
+    if (lst->right_list_canary != CANARY_LIST_VALUE) err = err | FAILED_LIST_CANARY_PROTECTION_RIGHT ;
     #endif
 
     #if CANARY_DATA_PROTECTION
-    if (lst->left_data_canary  != CANARY_DATA)       err = err | FAILED_DATA_CANARY_PROTECTION_LEFT  ;
-    if (lst->right_data_canary != CANARY_DATA)       err = err | FAILED_DATA_CANARY_PROTECTION_RIGHT ;
+    if (lst->left_data_canary  != CANARY_DATA_VALUE) err = err | FAILED_DATA_CANARY_PROTECTION_LEFT  ;
+    if (lst->right_data_canary != CANARY_DATA_VALUE) err = err | FAILED_DATA_CANARY_PROTECTION_RIGHT ;
     #endif
 
     #if HASH_PROTECTION
@@ -191,3 +191,45 @@ uint32_t List_verify(List *const lst)
     return err; 
 }
 
+#if PROTECTION
+
+static uint32_t List_ctor(List *const lst, const uint32_t elem_size, const char    *name_file,
+                                                                     const char    *name_func,
+                                                                     const char    *name_var ,
+                                                                     const uint32_t line)
+{
+    if (lst == nullptr) return LIST_NULLPTR;
+    if (lst->is_ctored) return INVALID_CTOR;
+
+    *lst = {};
+
+    #if CANARY_LIST_PROTECTION
+    lst->left_list_canary = lst->right_list_canary = CANARY_LIST_VALUE;
+    #endif
+
+    #if CANARY_DATA_PROTECTION
+    lst->left_data_canary = lst->right_data_canary = CANARY_DATA_VALUE;
+    #endif
+
+    lst->elem_size = elem_size;
+    var_ctor(&lst->info, name_file, name_func, name_var, line);
+
+    #if HASH_PROTECTION
+    lst->hash = hash_culc(lst, &lst->hash, sizeof(List));
+    #endif
+
+    return OK;
+}
+#else //!PROTECTION
+
+static uint32_t List_ctor(List *const lst, uint32_t elem_size)
+{
+    if (lst == nullptr) return LIST_NULLPTR;
+    if (lst->is_ctored) return INVALID_CTOR;
+
+    *lst = {};
+
+    lst->elem_size = elem_size;
+    return OK;
+}
+#endif

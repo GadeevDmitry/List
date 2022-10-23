@@ -9,12 +9,12 @@
 struct var_declaration
 {
     const char *name_file, *name_func, *name_var;
-    uint64_t    line;    
+    uint32_t    line;    
 };
 
 /*___________________________FUNCTION_DECLARATION___________________________*/
 
-static void var_ctor (var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint64_t line);
+static void var_ctor (var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint32_t line);
 static void var_dtor (var_declaration *const var, const var_declaration *const poison);
 static void var_dump (var_declaration *const var, const var_declaration *const poison);
 
@@ -32,7 +32,7 @@ static void var_dump (var_declaration *const var, const var_declaration *const p
 *   @return nothing
 */
 
-static void var_ctor(var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint64_t line)
+static void var_ctor(var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint32_t line)
 {
     assert(var != nullptr);
     
