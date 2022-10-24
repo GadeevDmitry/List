@@ -9,10 +9,12 @@
 
 struct List_elem_info
 {
+    int32_t index;
+    
     bool is_free;
 
-    void *next;
-    void *prev;
+    List_elem_info *next;
+    List_elem_info *prev;
 };
 
 struct List
@@ -92,10 +94,30 @@ const char *error_messages[] =
 
 /*___________________________________FUNCTION_DECLARATION_____________________________________*/
 
-static uint32_t _List_verify    (List *const lst);
-static  int32_t  List_ctor      (List *const lst, const int elem_size);
-static  int32_t  List_fill_free (List *const lst);
-static  int32_t  List_realloc   (List *const lst);
+static uint32_t _List_verify        (List *const lst);
+static  int32_t  List_ctor          (List *const lst, const int elem_size);
+
+static  int32_t  List_fill_free     (List *const lst);
+static  int32_t  List_realloc       (List *const lst);
+
+static  int32_t  List_push          (List *const lst, const int32_t index, void *const push_val);
+static  int32_t  List_pop           (List *const lst, const int32_t index);
+static  int32_t  List_get           (List *const lst, const int32_t index, void *const pull_val);
+
+static  int32_t  List_add_free      (List *const lst, const int32_t index);
+static  int32_t  List_del_free      (List *const lst);
+
+static  int32_t  List_push_front    (List *const lst, void *const push_val);
+static  int32_t  List_push_back     (List *const lst, void *push_val);
+
+static  int32_t  List_pop_front     (List *const lst);
+static  int32_t  List_pop_back      (List *const lst);
+
+static int32_t   List_front         (List *const lst, void *const pull_val);
+static int32_t   List_back          (List *const lst, void *const pull_val);
+
+void            *List_value_iterator(List *const lst, const int32_t index);
+List_elem_info  *List_info_iterator (List *const lst, const int32_t index);
 
 /*____________________________________________________________________________________________*/
 
@@ -147,32 +169,44 @@ static int32_t List_fill_free(List *const lst)
     int32_t elem_cnt  = lst->free = lst->data_size;
     for (;  elem_cnt != lst->data_capacity - 1; ++elem_cnt)
     {
-        void           * cur_elem =                     (int8_t *) lst->data + elem_cnt * (lst->elem_size + sizeof(List_elem_info));
-        void           *next_elem =                     (int8_t *) cur_elem  +            (lst->elem_size + sizeof(List_elem_info));
-        List_elem_info * cur_info = (List_elem_info *) ((int8_t *) cur_elem  +             lst->elem_size                         );
-        List_elem_info *next_info = (List_elem_info *) ((int8_t *) cur_info  +             lst->elem_size + sizeof(List_elem_info));
+        List_elem_info * cur_info = List_info_iterator(lst, elem_cnt + 1);
+        List_elem_info *next_info = List_info_iterator(lst, elem_cnt + 1);
 
+        cur_info ->index   = elem_cnt ;
         cur_info ->is_free = true     ;
-        cur_info ->next    = next_elem;
-        next_info->prev    = cur_elem ;
-
-        memset(cur_elem, POISON_LIST_BYTE, lst->elem_size);
+        cur_info ->next    = next_info;
+        next_info->prev    = cur_info;
     }
 
-    void           * last_elem =                     (int8_t *) lst->data + elem_cnt * (lst->elem_size + sizeof(List_elem_info));
-    void           *first_elem =                     (int8_t *) lst->data                                                       ;
-    List_elem_info * last_info = (List_elem_info *) ((int8_t *) last_elem +             lst->elem_size                         );
-    List_elem_info *first_info = (List_elem_info *) ((int8_t *) last_info +             lst->elem_size + sizeof(List_elem_info));
+    List_elem_info * last_info = List_info_iterator(lst, elem_cnt);
+    List_elem_info *first_info = List_info_iterator(lst, 0)       ;
 
+    last_info->index    = elem_cnt  ;
     last_info ->is_free = true      ;
-    last_info ->next    = first_elem;
-    first_info->prev    = last_elem ;
-
-    memset(last_elem, POISON_LIST_BYTE, lst->elem_size);
+    last_info ->next    = first_info;
+    first_info->prev    = last_info ;
 
     List_verify(lst);
     return OK;
 }
+
+/*____________________________________________________________________________________________*/
+
+void *List_value_iterator(List *const lst, const int32_t index)
+{
+    assert(lst != nullptr);
+
+    return (int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info));
+}
+
+List_elem_info *List_info_iterator(List *const lst, const int32_t index)
+{
+    assert(lst != nullptr);
+
+    return (List_elem_info *) ((int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)));
+}
+
+/*____________________________________________________________________________________________*/
 
 static int32_t List_realloc(List *const lst)
 {
@@ -195,3 +229,141 @@ static int32_t List_realloc(List *const lst)
     return OK;
 }
 
+static int32_t List_push(List *const lst, const int32_t index, void *const push_val)
+{
+    List_verify (lst);
+    List_realloc(lst);
+    
+    void           *pocket_elem = List_value_iterator(lst, index);
+    void           *pushed_elem = List_value_iterator(lst, lst->free);
+    List_elem_info *pocket_info = List_info_iterator (lst, index);
+    List_elem_info *pushed_info = List_info_iterator (lst, lst->free);
+
+    List_del_free(lst);
+
+    memcpy(pushed_elem, push_val, lst->elem_size);
+    
+    pushed_info->next = pocket_info->next;
+    pocket_info->next = pushed_info;
+    pushed_info->prev = pocket_info;
+
+    pushed_info->next->prev = pushed_info;
+
+    List_verify(lst);
+
+    return pushed_info->index;
+}
+
+static int32_t List_pop(List *const lst, const int32_t index)
+{
+    List_verify(lst);
+
+    void           *poped_elem = List_value_iterator(lst, index);
+    List_elem_info *poped_info = List_info_iterator (lst, index);
+
+    List_add_free(lst, index);
+
+    poped_info->prev->next = poped_info->next;
+    poped_info->next->prev = poped_info->prev;
+
+    List_verify(lst);
+    return OK;
+}
+
+static int32_t List_get(List *const lst, const int32_t index, void *const pull_val)
+{
+    List_verify(lst);
+
+    memcpy(pull_val, List_value_iterator(lst, index), lst->elem_size);
+
+    List_verify(lst);
+
+    return OK;
+}
+
+static int32_t List_add_free(List *const lst, const int32_t index)
+{
+    List_verify(lst);
+
+    List_elem_info *coming_info = List_info_iterator(lst, index);
+    List_elem_info *free_info   = List_info_iterator(lst, lst->free);
+
+    if (coming_info->index == lst->head) lst->head = coming_info->next->index;
+
+    coming_info->next = free_info;
+    coming_info->prev = free_info->prev;
+    free_info  ->prev = coming_info;
+
+    free_info->prev->next = coming_info;
+    free_info->is_free    = true;
+
+    return OK;
+}
+
+static int32_t List_del_free(List *const lst)
+{
+    List_verify(lst);
+
+    List_elem_info *free_info = List_info_iterator(lst, lst->free);
+
+    if (free_info->next == free_info) lst->free = lst->data_size;
+    else
+    {
+        free_info->prev->next = free_info->next;
+        free_info->next->prev = free_info->prev;
+        
+        lst->free = free_info->prev->index;
+    }
+
+    free_info->is_free = false;
+
+    return OK;
+}
+
+static int32_t List_push_front(List *const lst, void *const push_val)
+{
+    List_verify(lst);
+
+    int32_t index     = List_info_iterator(lst, lst->head)->prev->index;
+    return  lst->head = List_push         (lst, index, push_val);
+}
+
+static int32_t List_push_back(List *const lst, void *push_val)
+{
+    List_verify(lst);
+
+    int32_t index = List_info_iterator(lst, lst->head)->prev->index;
+    return          List_push         (lst, index, push_val);
+}
+
+static int32_t List_pop_front(List *const lst)
+{
+    List_verify(lst);
+
+    int32_t index = List_info_iterator(lst, lst->head)->index;
+    return          List_pop          (lst, index);
+}
+
+static int32_t List_pop_back(List *const lst)
+{
+    List_verify(lst);
+
+    int32_t index = List_info_iterator(lst, lst->head)->prev->index;
+    return          List_pop          (lst, index);
+}
+
+static int32_t List_front(List *const lst, void *const pull_val)
+{
+    List_verify(lst);
+
+    int32_t index = List_info_iterator(lst, lst->head)->index;
+    return          List_get          (lst, index, pull_val);
+}
+
+static int32_t List_back(List *const lst, void *const pull_val)
+{
+    List_verify(lst);
+
+    int32_t index = List_info_iterator(lst, lst->head)->prev->index;
+    return          List_get          (lst, index, pull_val);
+}
