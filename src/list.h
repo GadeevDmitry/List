@@ -6,10 +6,6 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "log.h"
-#include "var_declaration.h"
-#include "hash.h"
-
 struct List_elem_info
 {
     int32_t index;
@@ -28,7 +24,6 @@ struct List
     int32_t data_size;
     int32_t data_capacity;
     
-    int32_t head;
     int32_t free;
 
     bool is_ctor;
@@ -39,11 +34,10 @@ const List default_list =
     nullptr, // data
 
           0, // elem_size
-          0, // data_size
+          1, // data_size
           4, // data_capcity
 
-         -1, // head
-          0, // free
+          1, // free
 
        true  // is_ctor
 };
@@ -67,7 +61,6 @@ enum LIST_ERRORS
     NEGATIVE_DATA_CAPACITY ,
     
     INVALID_CAPACITY ,
-    INVALID_HEAD ,
     INVALID_FREE ,
     INVALID_DATA ,
 
@@ -88,53 +81,239 @@ const char *error_messages[] =
     "Capacity of data         less than zero" ,
 
     "Capacity of data is invalid" ,
-    "Head     of list is invalid" ,
     "Free     of list is invalid" ,
     "Data             is invalid" ,
 
     "Memory limit exceeded"
 };
 
-/*___________________________________FUNCTION_DECLARATION_____________________________________*/
+/*__________________________________USER_MACRO_DEFINITIONS___________________________________*/
 
-static uint32_t _List_verify        (List *const lst);
-static void      List_dump          (List *const lst);
-static void      List_error         (List *const lst, const uint32_t err);
+#define List_ctor(lst, elem_size)                                                               \
+       if (true)                                                                                \
+       {                                                                                        \
+            int32_t ret_ctor = _List_ctor(lst, elem_size);                                      \
+                                                                                                \
+            if (ret_ctor == -1)                                                                 \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+            if (ret_ctor != OK)                                                                 \
+            {                                                                                   \
+                log_place();                                                                    \
+                List_error(ret_ctor);                                                           \
+                return -1;                                                                      \
+            }                                                                                   \
+       }
 
-static  int32_t  List_ctor          (List *const lst, const int elem_size);
+#define List_push(lst, index, push_val)                                                         \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_push = _List_push(lst);                                                 \
+                                                                                                \
+            if (ret_push != OK)                                                                 \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-static  int32_t  List_fill_free     (List *const lst);
-static  int32_t  List_realloc       (List *const lst);
+#define List_pop(lst, index)                                                                    \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_pop = _List_pop(lst, index)                                             \
+                                                                                                \
+            if (ret_pop != OK)                                                                  \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-static  int32_t  List_push          (List *const lst, const int32_t index, void *const push_val);
-static  int32_t  List_pop           (List *const lst, const int32_t index);
-static  int32_t  List_get           (List *const lst, const int32_t index, void *const pull_val);
+#define List_get(lst, index, pull_val)                                                          \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_get = _List_get(lst, index, pull_val);                                  \
+                                                                                                \
+            if (ret_get != OK)                                                                  \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-static  int32_t  List_add_free      (List *const lst, const int32_t index);
-static  int32_t  List_del_free      (List *const lst);
+#define List_push_front(lst, push_val)                                                          \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_push_front = _List_push_front(lst, push_val);                           \
+                                                                                                \
+            if (ret_push_front != OK)                                                           \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-static  int32_t  List_push_front    (List *const lst, void *const push_val);
-static  int32_t  List_push_back     (List *const lst, void *push_val);
+#define List_push_back(lst, push_val)                                                           \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_push_back = _List_push_back(lst, push_val);                             \
+                                                                                                \
+            if (ret_push_back != OK)                                                            \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-static  int32_t  List_pop_front     (List *const lst);
-static  int32_t  List_pop_back      (List *const lst);
+#define List_pop_front(lst)                                                                     \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_pop_front = _List_pop_front(lst);                                       \
+                                                                                                \
+            if (ret_pop_front != OK)                                                            \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-static int32_t   List_front         (List *const lst, void *const pull_val);
-static int32_t   List_back          (List *const lst, void *const pull_val);
+#define List_pop_back(lst)                                                                      \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_pop_back = _List_pop_back(lst);                                         \
+                                                                                                \
+            if (ret_pop_back != OK)                                                             \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-void            *List_value_iterator(List *const lst, const int32_t index);
-List_elem_info  *List_info_iterator (List *const lst, const int32_t index);
+#define List_front(lst, pull_val)                                                               \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_front = _List_front(lst, pull_val);                                     \
+                                                                                                \
+            if (ret_front != OK)                                                                \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
 
-/*____________________________________________________________________________________________*/
+#define List_back(lst, pull_val)                                                                \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_back = _List_back(lst, pull_val);                                       \
+                                                                                                \
+            if (ret_back != OK)                                                                 \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+
+/*_______________________________ADDITIONAL_MACRO_DEFENITIONS________________________________*/
 
 #define List_verify(lst)                                                                        \
-    uint32_t verify_ret = _List_verify(lst);                                                    \
+        if (true)                                                                               \
+        {                                                                                       \
+            uint32_t ret_verify = _List_verify(lst);                                            \
                                                                                                 \
-   if (verify_ret != OK)                                                                        \
-   {                                                                                            \
-        List_error(lst, verify_ret);                                                            \
-        return -1;                                                                              \
-   }
+            if (ret_verify != OK)                                                               \
+            {                                                                                   \
+                log_place();                                                                    \
+                List_error(ret_verify);                                                         \
+                List_dump(lst);                                                                 \
+                                                                                                \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+
+#define List_fill_free(lst)                                                                     \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_fill_free = _List_fill_free(lst);                                       \
+                                                                                                \
+            if (ret_fill_free != OK)                                                            \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+
+#define List_realloc(lst)                                                                       \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_realloc = _List_realloc(lst);                                           \
+                                                                                                \
+            if (ret_realloc != OK)                                                              \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+
+#define List_add_free(lst, index)                                                               \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_add_free = _List_add_free(lst, index);                                  \
+                                                                                                \
+            if (ret_add_free != OK)                                                             \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+
+#define List_del_free(lst)                                                                      \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_del_free = _List_del_free(lst);                                         \
+                                                                                                \
+            if (ret_del_free != OK)                                                             \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+
+/*________________________________USER_FUNCTION_DECLARATIONS_________________________________*/
+
+static void              List_dump              (List *const lst);
+
+static int32_t          _List_ctor              (List *const lst, const int elem_size);
+
+static int32_t          _List_push              (List *const lst, const int32_t index, void *const push_val);
+static int32_t          _List_pop               (List *const lst, const int32_t index);
+static int32_t          _List_get               (List *const lst, const int32_t index, void *const pull_val);
+
+static int32_t          _List_push_front        (List *const lst, void *const push_val);
+static int32_t          _List_push_back         (List *const lst, void *const push_val);
+
+static int32_t          _List_pop_front         (List *const lst);
+static int32_t          _List_pop_back          (List *const lst);
+
+static int32_t          _List_front             (List *const lst, void *const pull_val);
+static int32_t          _List_back              (List *const lst, void *const pull_val);
+
+/*______________________________ADDITIONAL_FUNCTION_DECLARATIONS_____________________________*/
+
+static uint32_t         _List_verify            (List *const lst);
+static void              List_error             (const uint32_t err);
+
+static void             *List_value_iterator    (List *const lst, const int32_t index);
+static List_elem_info   *List_info_iterator     (List *const lst, const int32_t index);
+
+static int32_t          _List_realloc           (List *const lst);
+static int32_t          _List_fill_free         (List *const lst);
+
+static int32_t          _List_add_free          (List *const lst, const int32_t index);
+static int32_t          _List_del_free          (List *const lst);
+
+/*___________________________________________________________________________________________*/
 
 static uint32_t _List_verify(List *const lst)
 {
@@ -148,8 +327,6 @@ static uint32_t _List_verify(List *const lst)
     if (lst->data_capacity < 0)                     err = err | (1 << NEGATIVE_DATA_CAPACITY)   ;
 
     if (lst->data_capacity < lst->data_size)        err = err | (1 << INVALID_CAPACITY)         ;
-    if (lst->head          < default_list.head ||
-        lst->head          > lst->data_size)        err = err | (1 << INVALID_HEAD)             ;
     if (lst->free          < default_list.free ||
         lst->free          > lst->data_size)        err = err | (1 << INVALID_FREE)             ;
     if (lst->data         == nullptr)               err = err | (1 << INVALID_DATA)             ;
@@ -157,16 +334,13 @@ static uint32_t _List_verify(List *const lst)
     return err;
 }
 
-static void List_error(List *const lst, const uint32_t err)
+static void List_error(const uint32_t err)
 {
-    log_error("\nLIST_VERIFY_FAILED\n")
+    log_error("\nLIST_VERIFY_FAILED\n");
 
-    for (uint8_t err_bit = 0; err_bit < 32; ++err_bit)
+    for (uint8_t err_bit = 0; err_bit < sizeof(int32_t); ++err_bit)
     {
-        if (err & (1 << err_bit))
-        {
-            log_error(error_messages[err_bit] "\n");
-        }
+        if (err & (1 << err_bit)) log_error("%s\n", error_messages[err_bit]);
     }
 }
 
@@ -184,7 +358,6 @@ static void List_dump(List *const lst)
                 "                         \n"
                 "       elem_size:      %d\n"
                 "                         \n"
-                "       head:           %d\n"
                 "       free:           %d\n"
                 "                         \n"
                 "       is_ctor:        %d\n"
@@ -196,7 +369,6 @@ static void List_dump(List *const lst)
                         
                         lst->elem_size,
                         
-                        lst->head,
                         lst->free,
                         
                         lst->is_ctor);
@@ -205,88 +377,36 @@ static void List_dump(List *const lst)
                 "index: ");
     for (int index_cnt = 0; index_cnt < lst->data_capacity; ++index_cnt)
     {
-        log_message("%-15d ", index_cnt);
+        log_message("%-8d ", index_cnt);
     }
 
     log_message("\n"
                 " next: ");
     for (int next_cnt  = 0; next_cnt  < lst->data_capacity; ++next_cnt)
     {
-        log_message("%-15d ", List_info_iterator(lst, next_cnt)->next->index);
+        List_elem_info *cur_info = List_info_iterator(lst, next_cnt);
+
+        if      (cur_info       == nullptr) log_message(RED   "%-8s ", "NO INFO");
+        else if (cur_info->next == nullptr) log_message(OLIVE "%-8s ", "NULL"   );
+        else                                log_message(USUAL "%-8d ", cur_info->next->index);
     }
 
     log_message("\n"
                 " prev: ");
     for (int prev_cnt  = 0; prev_cnt  < lst->data_capacity; ++prev_cnt)
     {
-        log_message("%-15d ", List_info_iterator(lst, prev_cnt)->prev->index);
+        List_elem_info *cur_info = List_info_iterator(lst, prev_cnt);
+
+        if      (cur_info       == nullptr) log_message(RED   "%-8s ", "NO_INFO");
+        else if (cur_info->next == nullptr) log_message(OLIVE "%-8s ", "NULL"   );
+        else                                log_message(USUAL "%-8d ", cur_info->prev->index);
     }
+    log_message("\n");
 }
 
-static int32_t List_ctor(List *const lst, const int elem_size)
-{
-    if (lst          == nullptr) return 1 << LIST_NULLPTR;
-    if (lst->is_ctor == true)    return 1 << ALREADY_CTORED;
-    
-   *lst                = default_list; 
-    lst->elem_size     = elem_size   ;
-    lst->data          = calloc(lst->data_capacity, sizeof(List_elem_info) + lst->elem_size);
+/*___________________________________________________________________________________________*/
 
-    if (lst->data == nullptr) return 1 << MEMORY_LIMIT_EXCEEDED;
-
-    List_fill_free(lst);
-
-    List_verify(lst);
-    return OK;
-}
-
-static int32_t List_fill_free(List *const lst)
-{
-    List_verify(lst);
-
-    int32_t elem_cnt  = lst->free = lst->data_size;
-    for (;  elem_cnt != lst->data_capacity - 1; ++elem_cnt)
-    {
-        List_elem_info * cur_info = List_info_iterator(lst, elem_cnt    );
-        List_elem_info *next_info = List_info_iterator(lst, elem_cnt + 1);
-
-        cur_info ->index   = elem_cnt ;
-        cur_info ->is_free = true     ;
-        cur_info ->next    = next_info;
-        next_info->prev    = cur_info;
-    }
-
-    List_elem_info * last_info = List_info_iterator(lst, elem_cnt    );
-    List_elem_info *first_info = List_info_iterator(lst, lst->free   );
-
-    last_info->index    = elem_cnt  ;
-    last_info ->is_free = true      ;
-    last_info ->next    = first_info;
-    first_info->prev    = last_info ;
-
-    List_verify(lst);
-    return OK;
-}
-
-/*____________________________________________________________________________________________*/
-
-void *List_value_iterator(List *const lst, const int32_t index)
-{
-    assert(lst != nullptr);
-
-    return (int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info));
-}
-
-List_elem_info *List_info_iterator(List *const lst, const int32_t index)
-{
-    assert(lst != nullptr);
-
-    return (List_elem_info *) ((int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)));
-}
-
-/*____________________________________________________________________________________________*/
-
-static int32_t List_realloc(List *const lst)
+static int32_t _List_realloc(List *const lst)
 {
     List_verify(lst);
 
@@ -301,18 +421,85 @@ static int32_t List_realloc(List *const lst)
         lst->data          = temp_lst_data  ;
 
         List_fill_free(lst);
-
-        List_verify(lst);
+        List_verify   (lst);
     }
     return OK;
 }
 
-static int32_t List_push(List *const lst, const int32_t index, void *const push_val)
-{
-    //>>>>>>>>>>>>>
-    printf("\nList_push() :\n");
-    //<<<<<<<<<<<<<
+/*___________________________________________________________________________________________*/
 
+static int32_t _List_fill_free(List *const lst)
+{
+    List_verify(lst);
+
+    int32_t elem_cnt = lst->free = lst->data_size;
+    for (;  elem_cnt < lst->data_capacity - 1; ++elem_cnt)
+    {
+        List_elem_info * cur_info = List_info_iterator(lst, elem_cnt    );
+        List_elem_info *next_info = List_info_iterator(lst, elem_cnt + 1);
+
+        cur_info->index   = elem_cnt ;
+        cur_info->is_free = true     ;
+        cur_info->next    = next_info;
+        cur_info->prev    = nullptr  ;
+    }
+
+    List_elem_info * last_info = List_info_iterator(lst, elem_cnt);
+
+    last_info->index   = elem_cnt;
+    last_info->is_free = true    ;
+    last_info->next    = nullptr ;
+    last_info->prev    = nullptr ;
+
+    List_verify(lst);
+    return OK;
+}
+
+/*___________________________________________________________________________________________*/
+
+static void *List_value_iterator(List *const lst, const int32_t index)
+{
+    assert(lst != nullptr);
+
+    return (int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info));
+}
+
+static List_elem_info *List_info_iterator(List *const lst, const int32_t index)
+{
+    assert(lst != nullptr);
+
+    return (List_elem_info *) ((int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)) + lst->elem_size);
+}
+
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_ctor(List *const lst, const int elem_size)
+{
+    if (lst          == nullptr) return 1 << LIST_NULLPTR      ;
+    if (lst->is_ctor == true   ) return 1 << ALREADY_CTORED    ;
+    
+   *lst                = default_list; 
+    lst->elem_size     = elem_size   ;
+    lst->data          = calloc(lst->data_capacity, sizeof(List_elem_info) + lst->elem_size);
+    
+    List_elem_info *fictional = List_info_iterator(lst, 0);
+    
+    fictional->index          = 0;
+    fictional->is_free        = false;
+    fictional->next           = fictional;
+    fictional->prev           = fictional;
+
+    if (lst->data == nullptr) return 1 << MEMORY_LIMIT_EXCEEDED;
+
+    List_fill_free(lst);
+    List_verify   (lst);
+    return OK;
+}
+
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_push(List *const lst, const int32_t index, void *const push_val)
+{
     List_verify (lst);
     List_realloc(lst);
     
@@ -338,25 +525,29 @@ static int32_t List_push(List *const lst, const int32_t index, void *const push_
     return pushed_info->index;
 }
 
-static int32_t List_pop(List *const lst, const int32_t index)
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_pop(List *const lst, const int32_t index)
 {
     List_verify(lst);
 
     void           *poped_elem = List_value_iterator(lst, index);
     List_elem_info *poped_info = List_info_iterator (lst, index);
 
-    List_add_free(lst, index);
 
     poped_info->prev->next = poped_info->next;
     poped_info->next->prev = poped_info->prev;
 
     --lst->data_size;
 
-    List_verify(lst);
+    List_add_free(lst, index);
+    List_verify  (lst);
     return OK;
 }
 
-static int32_t List_get(List *const lst, const int32_t index, void *const pull_val)
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_get(List *const lst, const int32_t index, void *const pull_val)
 {
     List_verify(lst);
 
@@ -367,126 +558,108 @@ static int32_t List_get(List *const lst, const int32_t index, void *const pull_v
     return OK;
 }
 
-static int32_t List_add_free(List *const lst, const int32_t index)
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_add_free(List *const lst, const int32_t index)
 {
     List_verify(lst);
 
     List_elem_info *coming_info = List_info_iterator(lst, index);
-    List_elem_info *free_info   = List_info_iterator(lst, lst->free);
 
-    if (coming_info->index == lst->head) lst->head = coming_info->next->index;
+    if (lst->free == lst->data_capacity)
+    {
+        lst->free = index;
 
-    coming_info->next = free_info;
-    coming_info->prev = free_info->prev;
-    free_info  ->prev = coming_info;
+        coming_info->next    = nullptr;
+        coming_info->prev    = nullptr;
+    }
+    else 
+    {
+        List_elem_info *free_info = List_info_iterator(lst, lst->free);
+        
+        coming_info->next = free_info;
+        coming_info->prev = nullptr;
 
-    free_info->prev->next = coming_info;
-    free_info->is_free    = true;
+        lst->free = index; 
+    }
 
+    coming_info->is_free = true;
+
+    List_verify(lst);
     return OK;
 }
 
-static int32_t List_del_free(List *const lst)
-{
-    //>>>>>>>>>>>>>>>
-    log_message("\nList_del_free():\n");
-    //<<<<<<<<<<<<<<<
+/*___________________________________________________________________________________________*/
 
+static int32_t _List_del_free(List *const lst)
+{
     List_verify(lst);
 
     List_elem_info *free_info = List_info_iterator(lst, lst->free);
 
-    if (free_info->next == free_info) lst->free = lst->data_size;
-    else
-    {
-        free_info->prev->next = free_info->next;
-        free_info->next->prev = free_info->prev;
-        
-        lst->free = free_info->prev->index;
-    }
+    if (free_info->next == nullptr) lst->free = lst      ->data_capacity;
+    else                            lst->free = free_info->next->index  ;
 
     free_info->is_free = false;
 
+    List_verify(lst);
     return OK;
 }
 
-static int32_t List_push_front(List *const lst, void *const push_val)
-{
-    //<<<<<<<<<<<<<<<<
-    log_message("\nList_push_front():\n");
-    //>>>>>>>>>>>>>>>>
+/*___________________________________________________________________________________________*/
 
-    List_verify(lst);
-
-    if (lst->head == default_list.head)
-    {
-        List_realloc(lst);
-
-        void           *pocket_elem = List_value_iterator(lst, lst->free);
-        List_elem_info *pocket_info = List_info_iterator (lst, lst->free);
-
-        List_del_free(lst);
-
-        lst        ->head = pocket_info->index;
-        pocket_info->next = pocket_info->prev   = pocket_info;
-
-        memcpy(pocket_elem, push_val, lst->elem_size);
-
-        ++lst->data_size;
-
-        List_verify(lst);
-
-        return lst->head;
-    }
-
-    int32_t index     = List_info_iterator(lst, lst->head)->prev->index;
-    return  lst->head = List_push         (lst, index, push_val);
-}
-
-static int32_t List_push_back(List *const lst, void *push_val)
-{
-    //>>>>>>>>>>>>>
-    log_message("\nList_push_back():\n");
-    //<<<<<<<<<<<<<
-
-    List_verify(lst);
-
-    if (lst->head == default_list.head) return List_push_front(lst, push_val);
-
-    int32_t index = List_info_iterator(lst, lst->head)->prev->index;
-    return          List_push         (lst, index, push_val);
-}
-
-static int32_t List_pop_front(List *const lst)
+static int32_t _List_push_front(List *const lst, void *const push_val)
 {
     List_verify(lst);
 
-    int32_t index = List_info_iterator(lst, lst->head)->index;
-    return          List_pop          (lst, index);
+    return _List_push(lst, 0, push_val);
 }
 
-static int32_t List_pop_back(List *const lst)
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_push_back(List *const lst, void *const push_val)
 {
     List_verify(lst);
 
-    int32_t index = List_info_iterator(lst, lst->head)->prev->index;
-    return          List_pop          (lst, index);
+    return _List_push(lst, List_info_iterator(lst, 0)->prev->index, push_val);
 }
 
-static int32_t List_front(List *const lst, void *const pull_val)
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_pop_front(List *const lst)
 {
     List_verify(lst);
 
-    int32_t index = List_info_iterator(lst, lst->head)->index;
-    return          List_get          (lst, index, pull_val);
+    return _List_pop(lst, List_info_iterator(lst, 0)->next->index);
 }
 
-static int32_t List_back(List *const lst, void *const pull_val)
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_pop_back(List *const lst)
 {
     List_verify(lst);
 
-    int32_t index = List_info_iterator(lst, lst->head)->prev->index;
-    return          List_get          (lst, index, pull_val);
+    return _List_pop(lst, List_info_iterator(lst, 0)->prev->index);
 }
+
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_front(List *const lst, void *const pull_val)
+{
+    List_verify(lst);
+
+    return _List_get(lst, List_info_iterator(lst, 0)->next->index, pull_val);
+}
+
+/*___________________________________________________________________________________________*/
+
+static int32_t _List_back(List *const lst, void *const pull_val)
+{
+    List_verify(lst);
+
+    return _List_get(lst, List_info_iterator(lst, 0)->prev->index, pull_val);
+}
+
+/*___________________________________________________________________________________________*/
 
 #endif // LIST_H
