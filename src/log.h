@@ -13,7 +13,7 @@
 #define BLUE   "<font color=MediumBlue>"
 #define OLIVE  "<font color=Olive>"
 #define BLACK  "<font color=Black>"
-#define CANCEL "</font>\n"
+#define CANCEL "</font>"
 #define USUAL  BLACK
 
 #ifndef LOG_FILE

@@ -386,9 +386,9 @@ static void List_dump(List *const lst)
     {
         List_elem_info *cur_info = List_info_iterator(lst, next_cnt);
 
-        if      (cur_info       == nullptr) log_message(RED   "%-8s ", "NO INFO");
-        else if (cur_info->next == nullptr) log_message(OLIVE "%-8s ", "NULL"   );
-        else                                log_message(USUAL "%-8d ", cur_info->next->index);
+        if      (cur_info       == nullptr) log_message(RED   "%-8s " CANCEL, "NO INFO");
+        else if (cur_info->next == nullptr) log_message(OLIVE "%-8s " CANCEL, "NULL"   );
+        else                                log_message(USUAL "%-8d " CANCEL, cur_info->next->index);
     }
 
     log_message("\n"
@@ -397,9 +397,9 @@ static void List_dump(List *const lst)
     {
         List_elem_info *cur_info = List_info_iterator(lst, prev_cnt);
 
-        if      (cur_info       == nullptr) log_message(RED   "%-8s ", "NO_INFO");
-        else if (cur_info->next == nullptr) log_message(OLIVE "%-8s ", "NULL"   );
-        else                                log_message(USUAL "%-8d ", cur_info->prev->index);
+        if      (cur_info       == nullptr) log_message(RED   "%-8s " CANCEL, "NO_INFO");
+        else if (cur_info->prev == nullptr) log_message(OLIVE "%-8s " CANCEL, "NULL"   );
+        else                                log_message(USUAL "%-8d " CANCEL, cur_info->prev->index);
     }
     log_message("\n");
 }
