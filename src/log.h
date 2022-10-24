@@ -66,7 +66,7 @@ void CLOSE_LOG_STREAM()
 {
     assert (LOG_STREAM != nullptr);
 
-    fprintf(LOG_STREAM, "\"%s\" CLOSING IS OK\n\n", LOG_FILE);
+    fprintf(LOG_STREAM, "\n\n\"%s\" CLOSING IS OK\n\n", LOG_FILE);
     fclose (LOG_STREAM);
 }
 
@@ -146,6 +146,7 @@ void log_error(const char *fmt, ...)
 
     fprintf (LOG_STREAM, RED "ERROR: ");
     vfprintf(LOG_STREAM, fmt, ap);
+    fprintf (LOG_STREAM, CANCEL);
 }
 
 #endif //LOG_H
