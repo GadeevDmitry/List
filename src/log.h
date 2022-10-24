@@ -73,7 +73,8 @@ void CLOSE_LOG_STREAM()
 static int _OPEN_CLOSE_LOG_STREAM = OPEN_LOG_STREAM();
 
 #define log_place()                                                                 \
-        log_message("    FILE: %s\n"                                                \
+        log_message("\n"                                                            \
+                    "    FILE: %s\n"                                                \
                     "FUNCTION: %s\n"                                                \
                     "    LINE: %d\n", __FILE__, __PRETTY_FUNCTION__, __LINE__)
 

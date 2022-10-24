@@ -49,40 +49,40 @@ enum LIST_POISON
 
 enum LIST_ERRORS
 {
-    OK ,
+    OK                      ,
 
-    LIST_NULLPTR ,
+    LIST_NULLPTR            ,
 
-    ALREADY_CTORED ,
-    NOT_YET_CTORED ,
+    ALREADY_CTORED          ,
+    NOT_YET_CTORED          ,
 
-    NEGATIVE_ELEM_SIZE ,
-    NEGATIVE_DATA_SIZE ,
-    NEGATIVE_DATA_CAPACITY ,
+    NEGATIVE_ELEM_SIZE      ,
+    NEGATIVE_DATA_SIZE      ,
+    NEGATIVE_DATA_CAPACITY  ,
     
-    INVALID_CAPACITY ,
-    INVALID_FREE ,
-    INVALID_DATA ,
+    INVALID_CAPACITY        ,
+    INVALID_FREE            ,
+    INVALID_DATA            ,
 
     MEMORY_LIMIT_EXCEEDED
 };
 
 const char *error_messages[] = 
 {
-    "OK" ,
+    "OK"                                        ,
 
-    "List is invalid" ,
+    "List is invalid"                           ,
 
-    "List is already ctored" ,
-    "List is not yet ctored" ,
+    "List is already ctored"                    ,
+    "List is not yet ctored"                    ,
 
-    "Size     of list_element less than zero" ,
-    "Size     of data         less than zero" ,
-    "Capacity of data         less than zero" ,
+    "Size     of list_element less than zero"   ,
+    "Size     of data         less than zero"   ,
+    "Capacity of data         less than zero"   ,
 
-    "Capacity of data is invalid" ,
-    "Free     of list is invalid" ,
-    "Data             is invalid" ,
+    "Capacity of data is invalid"               ,
+    "Free     of list is invalid"               ,
+    "Data             is invalid"               ,
 
     "Memory limit exceeded"
 };
@@ -112,7 +112,7 @@ const char *error_messages[] =
         {                                                                                       \
             int32_t ret_push = _List_push(lst);                                                 \
                                                                                                 \
-            if (ret_push != OK)                                                                 \
+            if (ret_push == -1)                                                                 \
             {                                                                                   \
                 log_place();                                                                    \
                 return -1;                                                                      \
@@ -148,7 +148,7 @@ const char *error_messages[] =
         {                                                                                       \
             int32_t ret_push_front = _List_push_front(lst, push_val);                           \
                                                                                                 \
-            if (ret_push_front != OK)                                                           \
+            if (ret_push_front == -1)                                                           \
             {                                                                                   \
                 log_place();                                                                    \
                 return -1;                                                                      \
@@ -160,7 +160,7 @@ const char *error_messages[] =
         {                                                                                       \
             int32_t ret_push_back = _List_push_back(lst, push_val);                             \
                                                                                                 \
-            if (ret_push_back != OK)                                                            \
+            if (ret_push_back == -1)                                                            \
             {                                                                                   \
                 log_place();                                                                    \
                 return -1;                                                                      \
@@ -317,10 +317,10 @@ static int32_t          _List_del_free          (List *const lst);
 
 static uint32_t _List_verify(List *const lst)
 {
-    uint32_t err = 0;
+    uint32_t err = OK;
 
-    if (lst          == nullptr)                               return LIST_NULLPTR              ;
-    if (lst->is_ctor == false)                                 return NOT_YET_CTORED            ;
+    if (lst          == nullptr)                         return (1 << LIST_NULLPTR)             ;
+    if (lst->is_ctor == false)                           return (1 << NOT_YET_CTORED)           ;
 
     if (lst->elem_size     < 0)                     err = err | (1 << NEGATIVE_ELEM_SIZE)       ;
     if (lst->data_size     < 0)                     err = err | (1 << NEGATIVE_DATA_SIZE)       ;
@@ -328,7 +328,7 @@ static uint32_t _List_verify(List *const lst)
 
     if (lst->data_capacity < lst->data_size)        err = err | (1 << INVALID_CAPACITY)         ;
     if (lst->free          < default_list.free ||
-        lst->free          > lst->data_size)        err = err | (1 << INVALID_FREE)             ;
+        lst->free          > lst->data_capacity)    err = err | (1 << INVALID_FREE)             ;
     if (lst->data         == nullptr)               err = err | (1 << INVALID_DATA)             ;
 
     return err;
@@ -336,9 +336,10 @@ static uint32_t _List_verify(List *const lst)
 
 static void List_error(const uint32_t err)
 {
-    log_error("\nLIST_VERIFY_FAILED\n");
+    log_message("\n");
+    log_error  ("LIST_VERIFY_FAILED\n");
 
-    for (uint8_t err_bit = 0; err_bit < sizeof(int32_t); ++err_bit)
+    for (uint32_t err_bit = 0; err_bit < 8 * sizeof(int32_t); ++err_bit)
     {
         if (err & (1 << err_bit)) log_error("%s\n", error_messages[err_bit]);
     }
@@ -378,6 +379,18 @@ static void List_dump(List *const lst)
     for (int index_cnt = 0; index_cnt < lst->data_capacity; ++index_cnt)
     {
         log_message("%-8d ", index_cnt);
+    }
+
+    log_message("\n"
+                "value: ");
+    for (int index_cnt = 0; index_cnt < lst->data_capacity; ++index_cnt)
+    {
+        List_elem_info *cur_info = List_info_iterator (lst, index_cnt);
+        void           *cur_elem = List_value_iterator(lst, index_cnt);
+
+        if      (cur_info          == nullptr) log_message(RED   "%-8s " CANCEL, "NO INFO"            );
+        else if (cur_info->is_free == false)   log_message(USUAL "%-8d " CANCEL, *(int32_t *) cur_elem);
+        else                                   log_message(OLIVE "%-8s " CANCEL, "FREE"               );
     }
 
     log_message("\n"
