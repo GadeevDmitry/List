@@ -117,7 +117,7 @@ const char *error_messages[] =
 #define List_pop(lst, index)                                                                    \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop = _List_pop(lst, index)                                             \
+            int32_t ret_pop = _List_pop(lst, index);                                            \
                                                                                                 \
             if (ret_pop != OK)                                                                  \
             {                                                                                   \
@@ -141,8 +141,8 @@ const char *error_messages[] =
 #define List_push_front(lst, push_val)                                                          \
        _List_push_front(lst, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
-#define List_push_back (lst, push_val)                                                          \
-       _List_push_back (lst, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
+#define List_push_back(lst, push_val)                                                           \
+       _List_push_back(lst, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #define List_pop_front(lst)                                                                     \
         if (true)                                                                               \
@@ -694,7 +694,7 @@ static int32_t _List_push_back(List *const lst, void *const push_val,   const ch
 {
     assert(call_file != nullptr);
     assert(call_func != nullptr);
-    
+
     List_verify(lst);
 
     int32_t ret_push_back = __List_push_back(lst, push_val);                             
