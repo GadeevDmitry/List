@@ -9,6 +9,7 @@
 
 #define YELLOW "<font color=Gold>"
 #define RED    "<font color=DarkRed>"
+#define ORANGE "<font color=DarkOrange>"
 #define GREEN  "<font color=LimeGreen>"
 #define BLUE   "<font color=MediumBlue>"
 #define OLIVE  "<font color=Olive>"
@@ -24,9 +25,12 @@
 
 static void log_message      (const char *fmt, ...);
 static void log_error        (const char *fmt, ...);
+static void log_warning      (const char *fmt, ...);
 static void log_char_ptr     (const char *str_name, const char         *str, const char   *poison, const uint8_t len);
 static void log_int64_t      (const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len);
-
+static void log_param_place  (const char   *file,
+                              const char   *func,
+                              const int32_t line);
 static int  OPEN_LOG_STREAM  ();
 static void CLOSE_LOG_STREAM ();
 
@@ -42,7 +46,7 @@ static FILE *LOG_STREAM = nullptr;
 *   @return 1 if checking is OK. Does abort() if an ERROR found.
 */
 
-int OPEN_LOG_STREAM()
+static int OPEN_LOG_STREAM()
 {
     LOG_STREAM = fopen(LOG_FILE, "w");
 
@@ -62,7 +66,7 @@ int OPEN_LOG_STREAM()
 *   @return 1 if closing is OK. Does abort() if an ERROR found.
 */
 
-void CLOSE_LOG_STREAM()
+static void CLOSE_LOG_STREAM()
 {
     assert (LOG_STREAM != nullptr);
 
@@ -78,6 +82,19 @@ static int _OPEN_CLOSE_LOG_STREAM = OPEN_LOG_STREAM();
                     "FUNCTION: %s\n"                                                \
                     "    LINE: %d\n", __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
+static void log_param_place(const char   *file,
+                            const char   *func,
+                            const int32_t line)
+{
+    assert(file != nullptr);
+    assert(func != nullptr);
+
+    log_message("\n"
+                "    FILE: %s\n"
+                "FUNCTION: %s\n"
+                "    LINE: %d\n", __FILE__, __PRETTY_FUNCTION__, __LINE__);
+}
+
 /**
 *   @brief Prints message in LOG_FILE.
 *
@@ -86,7 +103,7 @@ static int _OPEN_CLOSE_LOG_STREAM = OPEN_LOG_STREAM();
 *   @return nothing
 */
 
-void log_message(const char *fmt, ...)
+static void log_message(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -106,7 +123,7 @@ void log_message(const char *fmt, ...)
 *   @return nothing
 */
 
-void log_char_ptr(const char *str_name, const char *str, const char *poison, const uint8_t len)
+static void log_char_ptr(const char *str_name, const char *str, const char *poison, const uint8_t len)
 {
     assert(str_name != nullptr);
 
@@ -126,7 +143,7 @@ void log_char_ptr(const char *str_name, const char *str, const char *poison, con
 *   @return nothing
 */
 
-void log_int64_t(const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len)
+static void log_int64_t(const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len)
 {
     assert(num_name != nullptr);
 
@@ -142,12 +159,30 @@ void log_int64_t(const char *num_name, const int64_t num_value, const int64_t po
 *   @return nothing
 */
 
-void log_error(const char *fmt, ...)
+static void log_error(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
 
     fprintf (LOG_STREAM, RED "ERROR: ");
+    vfprintf(LOG_STREAM, fmt, ap);
+    fprintf (LOG_STREAM, CANCEL);
+}
+
+/**
+*   @brief Prints warning-message in LOG_FILE. Before the message prints "WARNING: ".
+*
+*   @param fmt [in] - printf format
+*
+*   @return nothing
+*/
+
+static void log_warning(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    fprintf (LOG_STREAM, ORANGE "WARNING: ");
     vfprintf(LOG_STREAM, fmt, ap);
     fprintf (LOG_STREAM, CANCEL);
 }

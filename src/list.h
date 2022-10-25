@@ -51,7 +51,8 @@ enum LIST_ERRORS
 {
     OK                      ,
 
-    LIST_NULLPTR            ,
+    NULLPTR_LIST            ,
+    NULLPTR_LIST_INFO       ,
 
     ALREADY_CTORED          ,
     NOT_YET_CTORED          ,
@@ -63,15 +64,17 @@ enum LIST_ERRORS
     INVALID_CAPACITY        ,
     INVALID_FREE            ,
     INVALID_DATA            ,
+    INVALID_INDEX           ,
 
-    MEMORY_LIMIT_EXCEEDED
+    MEMORY_LIMIT_EXCEEDED   ,
 };
 
 const char *error_messages[] = 
 {
     "OK"                                        ,
 
-    "List is invalid"                           ,
+    "List              is invalid"              ,
+    "List_info pointer is invalid"              ,
 
     "List is already ctored"                    ,
     "List is not yet ctored"                    ,
@@ -80,9 +83,10 @@ const char *error_messages[] =
     "Size     of data         less than zero"   ,
     "Capacity of data         less than zero"   ,
 
-    "Capacity of data is invalid"               ,
-    "Free     of list is invalid"               ,
-    "Data             is invalid"               ,
+    "Capacity of data      is invalid"          ,
+    "Free     of list      is invalid"          ,
+    "Data                  is invalid"          ,
+    "Index    of list_info is invalid"          ,
 
     "Memory limit exceeded"
 };
@@ -259,7 +263,7 @@ static void              List_dump              (List *const lst);
 
 static int32_t          _List_ctor              (List *const lst, const int elem_size);
 
-static int32_t          _List_push              (List *const lst, const int32_t index, void *const push_val,
+static int32_t          _List_push              (List *const lst, const int32_t index,  void *const push_val,
                                                                                         const char   *call_file,
                                                                                         const char   *call_func,
                                                                                         const int32_t call_line);
@@ -284,6 +288,7 @@ static int32_t          _List_back              (List *const lst, void *const pu
 /*______________________________ADDITIONAL_FUNCTION_DECLARATIONS_____________________________*/
 
 static uint32_t         _List_verify            (List *const lst);
+static uint32_t         _List_info_verify       (List *const lst);
 static void              List_error             (const uint32_t err);
 
 static void             *List_value_iterator    (List *const lst, const int32_t index);
@@ -305,7 +310,7 @@ static uint32_t _List_verify(List *const lst)
 {
     uint32_t err = OK;
 
-    if (lst          == nullptr)                         return (1 << LIST_NULLPTR)             ;
+    if (lst          == nullptr)                         return (1 << NULLPTR_LIST)             ;
     if (lst->is_ctor == false)                           return (1 << NOT_YET_CTORED)           ;
 
     if (lst->elem_size     < 0)                     err = err | (1 << NEGATIVE_ELEM_SIZE)       ;
@@ -316,6 +321,27 @@ static uint32_t _List_verify(List *const lst)
     if (lst->free          < default_list.free ||
         lst->free          > lst->data_capacity)    err = err | (1 << INVALID_FREE)             ;
     if (lst->data         == nullptr)               err = err | (1 << INVALID_DATA)             ;
+
+    err = err | _List_info_verify(lst);
+
+    return err;
+}
+
+static uint32_t _List_info_verify(List *const lst)
+{
+    uint32_t err = 0;
+
+    for (int info_index = 0; info_index < lst->data_size; ++info_index)
+    {
+        List_elem_info *cur_info = List_info_iterator(lst, info_index);
+
+        if (cur_info->index   != info_index)    err = err | INVALID_INDEX       ;
+        if (cur_info->is_free == false)
+        {
+            if (cur_info->next  == nullptr)     err = err | NULLPTR_LIST_INFO   ;
+            if (cur_info->prev  == nullptr)     err = err | NULLPTR_LIST_INFO   ;
+        }
+    }
 
     return err;
 }
@@ -385,9 +411,13 @@ static void List_dump(List *const lst)
     {
         List_elem_info *cur_info = List_info_iterator(lst, next_cnt);
 
-        if      (cur_info       == nullptr) log_message(RED   "%-8s " CANCEL, "NO INFO");
-        else if (cur_info->next == nullptr) log_message(OLIVE "%-8s " CANCEL, "NULL"   );
-        else                                log_message(USUAL "%-8d " CANCEL, cur_info->next->index);
+        if      (cur_info       == nullptr)  log_message(RED   "%-8s " CANCEL, "NO INFO");
+        else if (cur_info->next == nullptr)
+        {
+            if  (cur_info->is_free == false) log_message(RED   "%-8s " CANCEL, "NULL"   );
+            else                             log_message(OLIVE "%-8s " CANCEL, "NULL"   );
+        }
+        else                                 log_message(USUAL "%-8d " CANCEL, cur_info->next->index);
     }
 
     log_message("\n"
@@ -396,9 +426,13 @@ static void List_dump(List *const lst)
     {
         List_elem_info *cur_info = List_info_iterator(lst, prev_cnt);
 
-        if      (cur_info       == nullptr) log_message(RED   "%-8s " CANCEL, "NO_INFO");
-        else if (cur_info->prev == nullptr) log_message(OLIVE "%-8s " CANCEL, "NULL"   );
-        else                                log_message(USUAL "%-8d " CANCEL, cur_info->prev->index);
+        if      (cur_info       == nullptr)  log_message(RED   "%-8s " CANCEL, "NO_INFO");
+        else if (cur_info->prev == nullptr)
+        {
+            if  (cur_info->is_free == false) log_message(RED   "%-8s " CANCEL, "NULL"   );
+            else                             log_message(OLIVE "%-8s " CANCEL, "NULL"   );
+        }
+        else                                 log_message(USUAL "%-8d " CANCEL, cur_info->prev->index);
     }
     log_message("\n");
 }
@@ -474,7 +508,7 @@ static List_elem_info *List_info_iterator(List *const lst, const int32_t index)
 
 static int32_t _List_ctor(List *const lst, const int elem_size)
 {
-    if (lst          == nullptr) return 1 << LIST_NULLPTR      ;
+    if (lst          == nullptr) return 1 << NULLPTR_LIST      ;
     if (lst->is_ctor == true   ) return 1 << ALREADY_CTORED    ;
     
    *lst                = default_list; 
@@ -504,12 +538,12 @@ static int32_t _List_push(List *const lst, const int32_t index, void *const push
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
+    List_verify(lst);
+
     int32_t ret_push = __List_push(lst, index, push_val);
     if     (ret_push == -1)
     {
-        log_message("    FILE: %s\n"
-                    "FUNCTION: %s\n"
-                    "    LINE: %d\n", call_file, call_func, call_line);
+        log_param_place(call_file, call_func, call_line);
         return -1;
     }
 
@@ -530,10 +564,10 @@ static int32_t __List_push(List *const lst, const int32_t index, void *const pus
 
     memcpy(pushed_elem, push_val, lst->elem_size);
     
+    
     pushed_info->next = pocket_info->next;
     pocket_info->next = pushed_info;
     pushed_info->prev = pocket_info;
-
     pushed_info->next->prev = pushed_info;
 
     ++lst->data_size;
@@ -633,12 +667,12 @@ static int32_t _List_push_front(List *const lst, void *const push_val,  const ch
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
+    List_verify(lst);
+
     int32_t ret_push_front = __List_push_front(lst, push_val);
     if     (ret_push_front == -1)
     {
-        log_message("    FILE: %s\n"
-                    "FUNCTION: %s\n"
-                    "    LINE: %d\n", call_file, call_func, call_line);
+        log_param_place(call_file, call_func, call_line);
         return -1;
     }
 
@@ -660,13 +694,13 @@ static int32_t _List_push_back(List *const lst, void *const push_val,   const ch
 {
     assert(call_file != nullptr);
     assert(call_func != nullptr);
+    
+    List_verify(lst);
 
     int32_t ret_push_back = __List_push_back(lst, push_val);                             
     if     (ret_push_back == -1)        
     {
-        log_message("    FILE: %s\n"
-                    "FUNCTION: %s\n"
-                    "    LINE: %d\n", call_file, call_func, call_line);
+        log_param_place(call_file, call_func, call_line);
         return -1;
     }
 
