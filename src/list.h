@@ -367,7 +367,7 @@ static void List_dump(List *const lst)
         log_message("%-8d ", index_cnt);
     }
 
-    log_message("\n"
+    log_message("\n\n"
                 "value: ");
     for (int index_cnt = 0; index_cnt < lst->data_capacity; ++index_cnt)
     {
