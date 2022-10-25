@@ -108,16 +108,7 @@ const char *error_messages[] =
        }
 
 #define List_push(lst, index, push_val)                                                         \
-        if (true)                                                                               \
-        {                                                                                       \
-            int32_t ret_push = _List_push(lst);                                                 \
-                                                                                                \
-            if (ret_push == -1)                                                                 \
-            {                                                                                   \
-                log_place();                                                                    \
-                return -1;                                                                      \
-            }                                                                                   \
-        }
+       _List_push(lst, index, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #define List_pop(lst, index)                                                                    \
         if (true)                                                                               \
@@ -144,28 +135,10 @@ const char *error_messages[] =
         }
 
 #define List_push_front(lst, push_val)                                                          \
-        if (true)                                                                               \
-        {                                                                                       \
-            int32_t ret_push_front = _List_push_front(lst, push_val);                           \
-                                                                                                \
-            if (ret_push_front == -1)                                                           \
-            {                                                                                   \
-                log_place();                                                                    \
-                return -1;                                                                      \
-            }                                                                                   \
-        }
+       _List_push_front(lst, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
-#define List_push_back(lst, push_val)                                                           \
-        if (true)                                                                               \
-        {                                                                                       \
-            int32_t ret_push_back = _List_push_back(lst, push_val);                             \
-                                                                                                \
-            if (ret_push_back == -1)                                                            \
-            {                                                                                   \
-                log_place();                                                                    \
-                return -1;                                                                      \
-            }                                                                                   \
-        }
+#define List_push_back (lst, push_val)                                                          \
+       _List_push_back (lst, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
 #define List_pop_front(lst)                                                                     \
         if (true)                                                                               \
@@ -286,12 +259,21 @@ static void              List_dump              (List *const lst);
 
 static int32_t          _List_ctor              (List *const lst, const int elem_size);
 
-static int32_t          _List_push              (List *const lst, const int32_t index, void *const push_val);
+static int32_t          _List_push              (List *const lst, const int32_t index, void *const push_val,
+                                                                                        const char   *call_file,
+                                                                                        const char   *call_func,
+                                                                                        const int32_t call_line);
+
 static int32_t          _List_pop               (List *const lst, const int32_t index);
 static int32_t          _List_get               (List *const lst, const int32_t index, void *const pull_val);
 
-static int32_t          _List_push_front        (List *const lst, void *const push_val);
-static int32_t          _List_push_back         (List *const lst, void *const push_val);
+static int32_t          _List_push_front        (List *const lst, void *const push_val, const char   *call_file,
+                                                                                        const char   *call_func,
+                                                                                        const int32_t call_line);
+
+static int32_t          _List_push_back         (List *const lst, void *const push_val, const char   *call_file,
+                                                                                        const char   *call_func,
+                                                                                        const int32_t call_line);
 
 static int32_t          _List_pop_front         (List *const lst);
 static int32_t          _List_pop_back          (List *const lst);
@@ -312,6 +294,10 @@ static int32_t          _List_fill_free         (List *const lst);
 
 static int32_t          _List_add_free          (List *const lst, const int32_t index);
 static int32_t          _List_del_free          (List *const lst);
+
+static int32_t         __List_push              (List *const lst, const int32_t index, void *const push_val);
+static int32_t         __List_push_front        (List *const lst,                      void *const push_val);
+static int32_t         __List_push_back         (List *const lst,                      void *const push_val);
 
 /*___________________________________________________________________________________________*/
 
@@ -511,7 +497,26 @@ static int32_t _List_ctor(List *const lst, const int elem_size)
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_push(List *const lst, const int32_t index, void *const push_val)
+static int32_t _List_push(List *const lst, const int32_t index, void *const push_val,   const char   *call_file,
+                                                                                        const char   *call_func,
+                                                                                        const int32_t call_line)
+{
+    assert(call_file != nullptr);
+    assert(call_func != nullptr);
+
+    int32_t ret_push = __List_push(lst, index, push_val);
+    if     (ret_push == -1)
+    {
+        log_message("    FILE: %s\n"
+                    "FUNCTION: %s\n"
+                    "    LINE: %d\n", call_file, call_func, call_line);
+        return -1;
+    }
+
+    return ret_push;
+}
+
+static int32_t __List_push(List *const lst, const int32_t index, void *const push_val)
 {
     List_verify (lst);
     List_realloc(lst);
@@ -621,20 +626,58 @@ static int32_t _List_del_free(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_push_front(List *const lst, void *const push_val)
+static int32_t _List_push_front(List *const lst, void *const push_val,  const char   *call_file,
+                                                                        const char   *call_func,
+                                                                        const int32_t call_line)
+{
+    assert(call_file != nullptr);
+    assert(call_func != nullptr);
+
+    int32_t ret_push_front = __List_push_front(lst, push_val);
+    if     (ret_push_front == -1)
+    {
+        log_message("    FILE: %s\n"
+                    "FUNCTION: %s\n"
+                    "    LINE: %d\n", call_file, call_func, call_line);
+        return -1;
+    }
+
+    return ret_push_front;
+}
+
+static int32_t __List_push_front(List *const lst, void *const push_val)
 {
     List_verify(lst);
 
-    return _List_push(lst, 0, push_val);
+    return List_push(lst, 0, push_val);
 }
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_push_back(List *const lst, void *const push_val)
+static int32_t _List_push_back(List *const lst, void *const push_val,   const char   *call_file,
+                                                                        const char   *call_func,
+                                                                        const int32_t call_line)
+{
+    assert(call_file != nullptr);
+    assert(call_func != nullptr);
+
+    int32_t ret_push_back = __List_push_back(lst, push_val);                             
+    if     (ret_push_back == -1)        
+    {
+        log_message("    FILE: %s\n"
+                    "FUNCTION: %s\n"
+                    "    LINE: %d\n", call_file, call_func, call_line);
+        return -1;
+    }
+
+    return ret_push_back;
+}
+
+static int32_t __List_push_back(List *const lst, void *const push_val)
 {
     List_verify(lst);
 
-    return _List_push(lst, List_info_iterator(lst, 0)->prev->index, push_val);
+    return List_push(lst, List_info_iterator(lst, 0)->prev->index, push_val);
 }
 
 /*___________________________________________________________________________________________*/
