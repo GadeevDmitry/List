@@ -26,8 +26,9 @@
 static void log_message      (const char *fmt, ...);
 static void log_error        (const char *fmt, ...);
 static void log_warning      (const char *fmt, ...);
-static void log_char_ptr     (const char *str_name, const char         *str, const char   *poison, const uint8_t len);
-static void log_int64_t      (const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len);
+
+static void log_char_ptr     (const char *str_name, const char *str);
+
 static void log_param_place  (const char   *file,
                               const char   *func,
                               const int32_t line);
@@ -117,38 +118,17 @@ static void log_message(const char *fmt, ...)
 *
 *   @param str_name [in] - name of string to print
 *   @param str      [in] - pointer to the first byte of string to print
-*   @param poison   [in] - poison (pointer to the first byte)-value of string to print
 *   @param len      [in] - minimal length of segment occupied by string
 *
 *   @return nothing
 */
 
-static void log_char_ptr(const char *str_name, const char *str, const char *poison, const uint8_t len)
+static void log_char_ptr(const char *str_name, const char *str)
 {
     assert(str_name != nullptr);
 
-    if      (str == nullptr)  log_message("%-*s : " BLUE   "\"nullptr\"\n" CANCEL, len, str_name);
-    else if (str ==  poison)  log_message("%-*s : " OLIVE  "\"POISON\"\n"  CANCEL, len, str_name);
-    else                      log_message("%-*s : " USUAL  "\"%s\"\n"      CANCEL, len, str_name, str);
-}
-
-/**
-*   @brief Prints "int64_t" in LOG_FILE even if it is "poison".
-*
-*   @param num_name  [in] - name of number to print
-*   @param num_value [in] - value of number to print
-*   @param poison    [in] - poison value of number to print
-*   @param len       [in] - minimal length of segment occupied by string
-*
-*   @return nothing
-*/
-
-static void log_int64_t(const char *num_name, const int64_t num_value, const int64_t poison, const uint8_t len)
-{
-    assert(num_name != nullptr);
-
-    if (num_value == poison) log_message("%-*s = " OLIVE  "\"POISON\"\n" CANCEL, len, num_name);
-    else                     log_message("%-*s = %lld\n"                       , len, num_name, num_value);
+    if      (str == nullptr)  log_message("%s : " BLUE   "nullptr\n" CANCEL, str_name);
+    else                      log_message("%s : " USUAL  "\"%s\"\n"  CANCEL, str_name, str);
 }
 
 /**

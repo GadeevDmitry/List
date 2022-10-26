@@ -6,17 +6,28 @@
 #include <inttypes.h>
 #include <assert.h>
 
+#include "/home/dima/Github/my_libraries/logs/log.h"
+
 struct var_declaration
 {
     const char *name_file, *name_func, *name_var;
     uint32_t    line;    
 };
 
+const var_declaration poison_var_declaration = 
+{
+    nullptr, // name_file
+    nullptr, // name_func
+    nullptr, // name_var
+    
+          0  // line
+};
+
 /*___________________________FUNCTION_DECLARATION___________________________*/
 
 static void var_ctor (var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint32_t line);
-static void var_dtor (var_declaration *const var, const var_declaration *const poison);
-static void var_dump (var_declaration *const var, const var_declaration *const poison);
+static void var_dtor (var_declaration *const var);
+static void var_dump (var_declaration *const var);
 
 /*__________________________________________________________________________*/
 
@@ -49,21 +60,23 @@ static void var_ctor(var_declaration *const var, const char *name_file, const ch
 /**
 *   @brief Dumps "var_declaration" in LOG_FILE.
 *
-*   @param var    [in] - pointer to the variable to dump
-*   @param poison [in] - pointer to the variable with poison-values
+*   @param var [in] - pointer to the variable to dump
 *
 *   @return nothing
 */
 
-static void var_dump(var_declaration *const var, const var_declaration *const poison)
+static void var_dump(var_declaration *const var)
 {
-    assert(var    != nullptr);
-    assert(poison != nullptr);
+    assert(var != nullptr);
 
-    log_char_ptr("name of var ", var->name_var , poison->name_var , 1);
-    log_char_ptr("name of file", var->name_file, poison->name_file, 1);
-    log_char_ptr("name of func", var->name_func, poison->name_func, 1);
-    log_int64_t ("num  of line", var->     line, poison->     line, 1);
+    log_message("\n");
+
+    log_char_ptr("name    of var : ", var->name_var );
+    log_char_ptr("created in file: ", var->name_file);
+    log_char_ptr("created in func: ", var->name_func);
+    log_message ("created in line: %d\n",  var->line);
+    
+    log_message("\n");
 }
 
 /**
@@ -75,15 +88,11 @@ static void var_dump(var_declaration *const var, const var_declaration *const po
 *   @return nothing
 */
 
-static void var_dtor(var_declaration *const var, const var_declaration *const poison)
+static void var_dtor(var_declaration *const var)
 {
-    assert(var    != nullptr);
-    assert(poison != nullptr);
+    assert(var != nullptr);
 
-    var->name_file = poison->name_file;
-    var->name_func = poison->name_func;
-    var->name_var  = poison->name_var ;
-    var->     line = poison->     line;
+    *var = poison_var_declaration;
 }
 
 #endif //VAR_DECLARATION_H
