@@ -44,6 +44,19 @@ const List default_list =
        true  // is_ctor
 };
 
+const List poison_list = 
+{
+    nullptr, // data
+
+         -1, // elem_size
+         -1, // data_size
+         -1, // data_capacity
+
+          0, // free
+
+      false  // is_ctor
+};
+
 enum LIST_POISON
 {
     POISON_LIST_BYTE = (uint8_t) 345
@@ -113,6 +126,18 @@ const char *error_messages[] =
             }                                                                                   \
        }
 
+#define List_dtor(lst)                                                                          \
+        if (true)                                                                               \
+        {                                                                                       \
+            int32_t ret_dtor = _List_dtor(lst);                                                 \
+                                                                                                \
+            if (ret_dtor == -1)                                                                 \
+            {                                                                                   \
+                log_place();                                                                    \
+                return -1;                                                                      \
+            }                                                                                   \
+        }
+        
 #define List_push(lst, index, push_val)                                                         \
        _List_push(lst, index, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
@@ -264,6 +289,7 @@ const char *error_messages[] =
 static void              List_dump              (List *const lst);
 
 static int32_t          _List_ctor              (List *const lst, const int elem_size);
+static int32_t          _List_dtor              (List *const lst);
 
 static int32_t          _List_push              (List *const lst, const int32_t index,  void *const push_val,
                                                                                         const char   *call_file,
@@ -529,6 +555,16 @@ static int32_t _List_ctor(List *const lst, const int elem_size)
     List_fill_free(lst);
     List_verify   (lst);
     return OK;
+}
+
+static int32_t _List_dtor(List *const lst)
+{
+    List_verify(lst);
+
+   free(lst->data);
+   *lst = poison_list;
+
+   return OK;
 }
 
 /*___________________________________________________________________________________________*/
