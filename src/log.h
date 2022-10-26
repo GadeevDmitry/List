@@ -127,8 +127,8 @@ static void log_char_ptr(const char *str_name, const char *str)
 {
     assert(str_name != nullptr);
 
-    if      (str == nullptr)  log_message("%s : " BLUE   "nullptr\n" CANCEL, str_name);
-    else                      log_message("%s : " USUAL  "\"%s\"\n"  CANCEL, str_name, str);
+    if      (str == nullptr)  log_message("%s: " BLUE   "nullptr\n" CANCEL, str_name);
+    else                      log_message("%s: " USUAL  "\"%s\"\n"  CANCEL, str_name, str);
 }
 
 /**

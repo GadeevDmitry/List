@@ -51,10 +51,10 @@ static void var_ctor(var_declaration *const var, const char *name_file, const ch
     assert(name_func != nullptr);
     assert(name_var  != nullptr);
 
-    var->name_file = name_file;
-    var->name_func = name_func;
-    var->name_var  = name_var ;
-    var->     line =      line;
+    var->name_file = name_file    ;
+    var->name_func = name_func    ;
+    var->name_var  = name_var  + 1; // to skip '&'
+    var->     line =      line    ;
 }
 
 /**
@@ -71,9 +71,9 @@ static void var_dump(var_declaration *const var)
 
     log_message("\n");
 
-    log_char_ptr("name    of var : ", var->name_var );
-    log_char_ptr("created in file: ", var->name_file);
-    log_char_ptr("created in func: ", var->name_func);
+    log_char_ptr("name    of var ", var->name_var );
+    log_char_ptr("created in file", var->name_file);
+    log_char_ptr("created in func", var->name_func);
     log_message ("created in line: %d\n",  var->line);
     
     log_message("\n");

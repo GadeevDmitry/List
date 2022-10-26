@@ -7,6 +7,8 @@
 #include <string.h>
 
 #include "/home/dima/Github/my_libraries/logs/log.h"
+#include "/home/dima/Github/my_libraries/var_declaration/var_declaration.h"
+
 
 struct List_elem_info
 {
@@ -29,6 +31,8 @@ struct List
     int32_t free;
 
     bool is_ctor;
+
+    var_declaration var_info;
 };
 
 const List default_list = 
@@ -41,20 +45,29 @@ const List default_list =
 
           1, // free
 
-       true  // is_ctor
+       true, // is_ctor
+
+    {
+    nullptr,
+    nullptr,
+    nullptr,
+          0
+    }        // var_info
 };
 
 const List poison_list = 
 {
-    nullptr, // data
+                  nullptr, // data
 
-         -1, // elem_size
-         -1, // data_size
-         -1, // data_capacity
+                       -1, // elem_size
+                       -1, // data_size
+                       -1, // data_capacity
 
-          0, // free
+                        0, // free
 
-      false  // is_ctor
+                    false, // is_ctor
+
+    poison_var_declaration //var_info
 };
 
 enum LIST_POISON
@@ -111,7 +124,10 @@ const char *error_messages[] =
 #define List_ctor(lst, elem_size)                                                               \
        if (true)                                                                                \
        {                                                                                        \
-            int32_t ret_ctor = _List_ctor(lst, elem_size);                                      \
+            int32_t ret_ctor = _List_ctor(lst, elem_size, __FILE__,                             \
+                                                          __PRETTY_FUNCTION__,                  \
+                                                          #lst,                                 \
+                                                          __LINE__);                            \
                                                                                                 \
             if (ret_ctor == -1)                                                                 \
             {                                                                                   \
@@ -137,7 +153,7 @@ const char *error_messages[] =
                 return -1;                                                                      \
             }                                                                                   \
         }
-        
+
 #define List_push(lst, index, push_val)                                                         \
        _List_push(lst, index, push_val, __FILE__, __PRETTY_FUNCTION__, __LINE__)
 
@@ -288,10 +304,13 @@ const char *error_messages[] =
 
 static void              List_dump              (List *const lst);
 
-static int32_t          _List_ctor              (List *const lst, const int elem_size);
+static int32_t          _List_ctor              (List *const lst, const int elem_size,  const char *name_file,
+                                                                                        const char *name_func,
+                                                                                        const char *name_var ,
+                                                                                        const uint32_t line  );
 static int32_t          _List_dtor              (List *const lst);
 
-static int32_t          _List_push              (List *const lst, const int32_t index,  void *const push_val,
+static int32_t          _List_push              (List *const lst, const int32_t index,  void *const   push_val,
                                                                                         const char   *call_file,
                                                                                         const char   *call_func,
                                                                                         const int32_t call_line);
@@ -391,6 +410,8 @@ static void List_dump(List *const lst)
                 "List[%p]\n", lst);
 
     if (lst == nullptr) return;
+
+    var_dump(&lst->var_info);
 
     log_message("List = {\n"
                 "       data:           %p\n"
@@ -534,15 +555,22 @@ static List_elem_info *List_info_iterator(List *const lst, const int32_t index)
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_ctor(List *const lst, const int elem_size)
+static int32_t _List_ctor(List *const lst, const int elem_size, const char *name_file,
+                                                                const char *name_func,
+                                                                const char *name_var ,
+                                                                const uint32_t line   )
 {
     if (lst          == nullptr) return 1 << NULLPTR_LIST      ;
     if (lst->is_ctor == true   ) return 1 << ALREADY_CTORED    ;
     
-   *lst                = default_list; 
+   *lst                = default_list;
     lst->elem_size     = elem_size   ;
     lst->data          = calloc(lst->data_capacity, sizeof(List_elem_info) + lst->elem_size);
     
+    if (lst->data == nullptr) return 1 << MEMORY_LIMIT_EXCEEDED;
+
+    var_ctor(&lst->var_info, name_file, name_func, name_var, line);
+
     List_elem_info *fictional = List_info_iterator(lst, 0);
     
     fictional->index          = 0;
@@ -550,7 +578,6 @@ static int32_t _List_ctor(List *const lst, const int elem_size)
     fictional->next           = fictional;
     fictional->prev           = fictional;
 
-    if (lst->data == nullptr) return 1 << MEMORY_LIMIT_EXCEEDED;
 
     List_fill_free(lst);
     List_verify   (lst);
@@ -562,7 +589,9 @@ static int32_t _List_dtor(List *const lst)
     List_verify(lst);
 
    free(lst->data);
+
    *lst = poison_list;
+   var_dtor(&lst->var_info);
 
    return OK;
 }
