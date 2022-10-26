@@ -6,6 +6,8 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "/home/dima/Github/my_libraries/logs/log.h"
+
 struct List_elem_info
 {
     int32_t index;
