@@ -1,12 +1,10 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 
-#include "assert.h"
-
 static void my_swap(void *a, void *b, const int elem_size)
 {
-    assert(a != NULL);
-    assert(b != NULL);
+    assert(a != nullptr);
+    assert(b != nullptr);
 
     unsigned char temp = '\0';
 
@@ -20,7 +18,7 @@ static void my_swap(void *a, void *b, const int elem_size)
 
 static void *get_ptr(void *begin_array, const int index, const int elem_size)
 {
-    assert(begin_array != NULL);
+    assert(begin_array != nullptr);
 
     void  *ptr = (unsigned char *)begin_array + index * elem_size;
     return ptr;
@@ -28,7 +26,9 @@ static void *get_ptr(void *begin_array, const int index, const int elem_size)
 
 static void my_quick_sort(void *data, int elem_size, const int left, const int right, int (*cmp) (void * elem1, void * elem2))
 {
-    assert(data != NULL);
+    assert(data != nullptr);
+    assert(cmp  != nullptr);
+
     if    (left >= right) return;
 
     int mid = (left + right) / 2;

@@ -87,7 +87,7 @@ static int LOG_STREAM_OPEN()
     LOG_STREAM = fopen(LOG_FILE, "w");
 
     assert (LOG_STREAM != nullptr);
-
+    setvbuf(LOG_STREAM,   nullptr, _IONBF, 0);
     fprintf(LOG_STREAM, "<pre>\n""\"%s\" OPENING IS OK\n\n", LOG_FILE);
 
     atexit(LOG_STREAM_CLOSE);

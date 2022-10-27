@@ -631,28 +631,41 @@ int32_t _List_line(List *const lst)
 {
     List_verify(lst);
 
-    List_elem_info *cur_info = List_info_iterator(lst, 0);
+    long long       logic_cnt = 0;
+    List_elem_info *cur_info  = List_info_iterator(lst, 0);
 
-    for (long long logic_cnt = 0; logic_cnt < lst->data_size; ++logic_cnt)
+    for (; logic_cnt < lst->data_size; ++logic_cnt)
     {
         cur_info->prev = (List_elem_info *) logic_cnt;
         cur_info       = cur_info->next;
     }
 
-    my_quick_sort(lst->data, sizeof(List_elem_info) + lst->elem_size, 0, lst->data_size - 1, List_cmp);
+    if (lst->free != lst->data_capacity)
+    {
+        cur_info = List_info_iterator(lst, lst->free);
+
+        for (; cur_info != nullptr; ++logic_cnt)
+        {
+            cur_info->prev = (List_elem_info *) logic_cnt;
+            cur_info       = cur_info->next;
+        }
+    }
+
+    my_quick_sort(lst->data, sizeof(List_elem_info) + lst->elem_size, 0, lst->data_capacity - 1, List_cmp);
 
     for (int cnt = 0; cnt < lst->data_size; ++cnt)
     {
         List_elem_info *cur_info = List_info_iterator(lst, cnt);
         int prev_index           = (cnt - 1) <               0 ? lst->data_size - 1 : cnt - 1;
-        int next_index           = (cnt + 1) == lst->data_size ? 0                  : cnt + 1;
+        int next_index           = (cnt + 1) == lst->data_size ?                  0 : cnt + 1;
 
         cur_info->index = cnt;
         cur_info->next  = List_info_iterator(lst, next_index);
         cur_info->prev  = List_info_iterator(lst, prev_index);
     }
 
-    List_verify(lst);
+    List_fill_free(lst);
+    List_verify   (lst);
     return OK;
 }
 

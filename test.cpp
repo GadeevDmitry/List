@@ -10,8 +10,6 @@ int main()
 
     List_ctor(&test, sizeof(int));
 
-    //var_dump(&test.var_info);
-
     int i         = 0 ;
     int index[10] = {};
 
@@ -26,6 +24,8 @@ int main()
     List_pop(&test, index[1]);
     List_pop(&test, index[8]);
 
+    List_dump(&test);
+    List_line(&test);
     List_dump(&test);
 
     for (int i = 0; i < 5; ++i)
