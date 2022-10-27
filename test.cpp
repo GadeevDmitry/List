@@ -13,6 +13,17 @@ int main()
     int i         = 0 ;
     int index[10] = {};
 
+    List_push_order(&test, 0, &(i = 3));
+    List_push_order(&test, 1, &(i = 4));
+    List_push_order(&test, 2, &(i = 5));
+    List_push_order(&test, 3, &(i = 8));
+    List_pop_order (&test, 3);
+    List_push_order(&test, 3, &(i = 9));
+    List_push_order(&test, 1, &(i = 7));
+    
+    /*
+
+
     index[1] = List_push_front(&test,           &(i = 1));
     index[3] = List_push_back (&test,           &(i = 3));
     index[8] = List_push      (&test, index[1], &(i = 8));
@@ -27,8 +38,13 @@ int main()
     List_dump(&test);
     List_line(&test);
     List_dump(&test);
+    */
+    
+    int all = test.data_size - 1;
 
-    for (int i = 0; i < 5; ++i)
+    List_dump(&test);
+
+    for (int i = 0; i < all; ++i)
     {
         int cur = 0;
 
