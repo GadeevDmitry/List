@@ -111,7 +111,7 @@ static void LOG_STREAM_CLOSE()
 
 void log_param_place(const char   *file,
                      const char   *func,
-                     const int32_t line)
+                     const int     line)
 {
     assert(file != nullptr);
     assert(func != nullptr);

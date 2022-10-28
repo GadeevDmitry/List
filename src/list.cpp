@@ -10,7 +10,7 @@
 
 struct List_elem_info
 {
-    int32_t index;
+    int index;
     
     bool is_free;
 
@@ -22,11 +22,11 @@ struct List
 {
     void *data;
 
-    int32_t elem_size;
-    int32_t data_size;
-    int32_t data_capacity;
+    int elem_size;
+    int data_size;
+    int data_capacity;
     
-    int32_t free;
+    int free;
 
     bool is_ctor;
     bool is_linear;
@@ -156,10 +156,10 @@ const char *color_names[] =
 #define List_ctor(lst, elem_size)                                                               \
        if (true)                                                                                \
        {                                                                                        \
-            int32_t ret_ctor = _List_ctor(lst, elem_size, __FILE__,                             \
-                                                          __PRETTY_FUNCTION__,                  \
-                                                          #lst,                                 \
-                                                          __LINE__);                            \
+            int ret_ctor = _List_ctor(lst, elem_size, __FILE__,                                 \
+                                                      __PRETTY_FUNCTION__,                      \
+                                                      #lst,                                     \
+                                                      __LINE__);                                \
                                                                                                 \
             if (ret_ctor == -1)                                                                 \
             {                                                                                   \
@@ -177,7 +177,7 @@ const char *color_names[] =
 #define List_dtor(lst)                                                                          \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_dtor = _List_dtor(lst);                                                 \
+            int ret_dtor = _List_dtor(lst);                                                     \
                                                                                                 \
             if (ret_dtor == -1)                                                                 \
             {                                                                                   \
@@ -195,7 +195,7 @@ const char *color_names[] =
 #define List_pop(lst, index)                                                                    \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop = _List_pop(lst, index);                                            \
+            int ret_pop = _List_pop(lst, index);                                                \
                                                                                                 \
             if (ret_pop != OK)                                                                  \
             {                                                                                   \
@@ -219,7 +219,7 @@ const char *color_names[] =
 #define List_get(lst, index, pull_val)                                                          \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_get = _List_get(lst, index, pull_val);                                  \
+            int ret_get = _List_get(lst, index, pull_val);                                      \
                                                                                                 \
             if (ret_get != OK)                                                                  \
             {                                                                                   \
@@ -249,7 +249,7 @@ const char *color_names[] =
 #define List_pop_front(lst)                                                                     \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop_front = _List_pop_front(lst);                                       \
+            int ret_pop_front = _List_pop_front(lst);                                           \
                                                                                                 \
             if (ret_pop_front != OK)                                                            \
             {                                                                                   \
@@ -261,7 +261,7 @@ const char *color_names[] =
 #define List_pop_back(lst)                                                                      \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop_back = _List_pop_back(lst);                                         \
+            int ret_pop_back = _List_pop_back(lst);                                             \
                                                                                                 \
             if (ret_pop_back != OK)                                                             \
             {                                                                                   \
@@ -273,7 +273,7 @@ const char *color_names[] =
 #define List_front(lst, pull_val)                                                               \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_front = _List_front(lst, pull_val);                                     \
+            int ret_front = _List_front(lst, pull_val);                                         \
                                                                                                 \
             if (ret_front != OK)                                                                \
             {                                                                                   \
@@ -285,7 +285,7 @@ const char *color_names[] =
 #define List_back(lst, pull_val)                                                                \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_back = _List_back(lst, pull_val);                                       \
+            int ret_back = _List_back(lst, pull_val);                                           \
                                                                                                 \
             if (ret_back != OK)                                                                 \
             {                                                                                   \
@@ -297,7 +297,7 @@ const char *color_names[] =
 #define List_verify(lst)                                                                        \
         if (true)                                                                               \
         {                                                                                       \
-            uint32_t ret_verify = _List_verify(lst);                                            \
+            unsigned int ret_verify = _List_verify(lst);                                        \
                                                                                                 \
             if (ret_verify != OK)                                                               \
             {                                                                                   \
@@ -312,7 +312,7 @@ const char *color_names[] =
 #define List_fill_free(lst)                                                                     \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_fill_free = _List_fill_free(lst);                                       \
+            int ret_fill_free = _List_fill_free(lst);                                           \
                                                                                                 \
             if (ret_fill_free != OK)                                                            \
             {                                                                                   \
@@ -324,7 +324,7 @@ const char *color_names[] =
 #define List_realloc(lst)                                                                       \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_realloc = _List_realloc(lst);                                           \
+            int ret_realloc = _List_realloc(lst);                                               \
                                                                                                 \
             if (ret_realloc != OK)                                                              \
             {                                                                                   \
@@ -336,7 +336,7 @@ const char *color_names[] =
 #define List_line(lst)                                                                          \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_line = _List_line(lst);                                                 \
+            int ret_line = _List_line(lst);                                                     \
                                                                                                 \
             if (ret_line != OK)                                                                 \
             {                                                                                   \
@@ -348,7 +348,7 @@ const char *color_names[] =
 #define List_add_free(lst, index)                                                               \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_add_free = _List_add_free(lst, index);                                  \
+            int ret_add_free = _List_add_free(lst, index);                                      \
                                                                                                 \
             if (ret_add_free != OK)                                                             \
             {                                                                                   \
@@ -360,7 +360,7 @@ const char *color_names[] =
 #define List_del_free(lst)                                                                      \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_del_free = _List_del_free(lst);                                         \
+            int ret_del_free = _List_del_free(lst);                                             \
                                                                                                 \
             if (ret_del_free != OK)                                                             \
             {                                                                                   \
@@ -375,38 +375,38 @@ void              List_dump             (List *const lst);
 void              List_simple_dump      (List *const lst);
 void              List_graph_dump       (List *const lst);
 
-int32_t          _List_line             (List *const lst);
+int              _List_line             (List *const lst);
 
-void              List_error            (const uint32_t err);
+void              List_error            (const unsigned int err);
 int              _List_order_to_index   (List *const lst, int order);
 
-int32_t          _List_ctor             (List *const lst, const int elem_size,  const char    *name_file,
+int              _List_ctor             (List *const lst, const int elem_size,  const char    *name_file,
                                                                                 const char    *name_func,
                                                                                 const char    *name_var ,
-                                                                                const uint32_t      line);
-int32_t          _List_dtor             (List *const lst);
+                                                                                const int      line);
+int              _List_dtor             (List *const lst);
 
-int32_t          _List_push             (List *const lst, const int32_t index, void *const         push_val ,
-                                                                                     const char   *call_file,
-                                                                                     const char   *call_func,
-                                                                                     const int32_t call_line);
+int              _List_push             (List *const lst, const int index, void *const         push_val ,
+                                                                                 const char   *call_file,
+                                                                                 const char   *call_func,
+                                                                                 const int     call_line);
 
-int32_t          _List_pop              (List *const lst, const int32_t index);
-int32_t          _List_get              (List *const lst, const int32_t index, void *const pull_val);
+int              _List_pop              (List *const lst, const int index);
+int              _List_get              (List *const lst, const int index, void *const pull_val);
 
-int32_t          _List_push_front       (List *const lst, void *const push_val, const char   *call_file,
+int              _List_push_front       (List *const lst, void *const push_val, const char   *call_file,
                                                                                 const char   *call_func,
-                                                                                const int32_t call_line);
+                                                                                const int     call_line);
 
-int32_t          _List_push_back        (List *const lst, void *const push_val, const char   *call_file,
+int              _List_push_back        (List *const lst, void *const push_val, const char   *call_file,
                                                                                 const char   *call_func,
-                                                                                const int32_t call_line);
+                                                                                const int     call_line);
 
-int32_t          _List_pop_front        (List *const lst);
-int32_t          _List_pop_back         (List *const lst);
+int              _List_pop_front        (List *const lst);
+int              _List_pop_back         (List *const lst);
 
-int32_t          _List_front            (List *const lst, void *const pull_val);
-int32_t          _List_back             (List *const lst, void *const pull_val);
+int              _List_front            (List *const lst, void *const pull_val);
+int              _List_back             (List *const lst, void *const pull_val);
 
 int              _List_push_order       (List *const lst, const int order, void *const       push_val,
                                                                                  const char *call_file,
@@ -415,33 +415,33 @@ int              _List_push_order       (List *const lst, const int order, void 
 
 /*______________________________ADDITIONAL_FUNCTION_DECLARATIONS_____________________________*/
 
-static uint32_t         _List_verify            (List *const lst);
-static uint32_t         _List_info_verify       (List *const lst);
+static unsigned int     _List_verify            (List *const lst);
+static unsigned int     _List_info_verify       (List *const lst);
 
-static void             *List_value_iterator    (List *const lst, const int32_t index);
-static List_elem_info   *List_info_iterator     (List *const lst, const int32_t index);
+static void             *List_value_iterator    (List *const lst, const int index);
+static List_elem_info   *List_info_iterator     (List *const lst, const int index);
 
-static int32_t          _List_realloc           (List *const lst);
-static int32_t          _List_fill_free         (List *const lst);
+static int              _List_realloc           (List *const lst);
+static int              _List_fill_free         (List *const lst);
 
 static int               List_cmp               (void *lst_a, void *lst_b);
 
 static int              _List_check_linearity   (List *const lst, const int index);
 
-static int32_t          _List_add_free          (List *const lst, const int32_t index);
-static int32_t          _List_del_free          (List *const lst);
+static int              _List_add_free          (List *const lst, const int index);
+static int              _List_del_free          (List *const lst);
 
-static int32_t          _List_push              (List *const lst, const int32_t index, void *const push_val);
-static int32_t          _List_push_front        (List *const lst,                      void *const push_val);
-static int32_t          _List_push_back         (List *const lst,                      void *const push_val);
+static int              _List_push              (List *const lst, const int index, void *const push_val);
+static int              _List_push_front        (List *const lst,                  void *const push_val);
+static int              _List_push_back         (List *const lst,                  void *const push_val);
 
 static void              describe_node          (List_elem_info *info, FILE *const stream, const int number);
 
 /*___________________________________________________________________________________________*/
 
-static uint32_t _List_verify(List *const lst)
+static unsigned int _List_verify(List *const lst)
 {
-    uint32_t err = OK;
+    unsigned int err = OK;
 
     if (lst          == nullptr)                         return (1 << NULLPTR_LIST)             ;
     if (lst->is_ctor == false)                           return (1 << NOT_YET_CTORED)           ;
@@ -460,9 +460,9 @@ static uint32_t _List_verify(List *const lst)
     return err;
 }
 
-static uint32_t _List_info_verify(List *const lst)
+static unsigned int _List_info_verify(List *const lst)
 {
-    uint32_t err = 0;
+    unsigned nt err = 0;
 
     for (int info_index = 0; info_index < lst->data_size; ++info_index)
     {
@@ -479,12 +479,12 @@ static uint32_t _List_info_verify(List *const lst)
     return err;
 }
 
-void List_error(const uint32_t err)
+void List_error(const unsigned int err)
 {
     log_message("\n");
     log_error  ("LIST_VERIFY_FAILED\n");
 
-    for (uint32_t err_bit = 0; err_bit < 8 * sizeof(int32_t); ++err_bit)
+    for (unsigned int err_bit = 0; err_bit < 8 * sizeof(int); ++err_bit)
     {
         if (err & (1 << err_bit)) log_error("%s\n", error_messages[err_bit]);
     }
@@ -512,7 +512,7 @@ void List_dump(List *const lst)
         void           *cur_elem = List_value_iterator(lst, index_cnt);
 
         if      (cur_info          == nullptr) log_message(RED   "%-8s " CANCEL, "NO INFO"            );
-        else if (cur_info->is_free == false)   log_message(USUAL "%-8d " CANCEL, *(int32_t *) cur_elem);
+        else if (cur_info->is_free == false)   log_message(USUAL "%-8d " CANCEL, *(int *) cur_elem);
         else                                   log_message(OLIVE "%-8s " CANCEL, "FREE"               );
     }
 
@@ -709,13 +709,13 @@ static void describe_node(List_elem_info *info, FILE *const stream, const int nu
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_realloc(List *const lst)
+static int _List_realloc(List *const lst)
 {
     List_verify(lst);
 
     if (lst->data_size == lst->data_capacity)
     {
-        int32_t future_capacity = 2 * lst->data_capacity;
+        int future_capacity = 2 * lst->data_capacity;
         void   *temp_lst_data   = realloc(lst->data, (lst->elem_size + sizeof(List_elem_info)) * future_capacity);
 
         if (temp_lst_data == nullptr) return 1 << MEMORY_LIMIT_EXCEEDED;
@@ -731,11 +731,11 @@ static int32_t _List_realloc(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_fill_free(List *const lst)
+static int _List_fill_free(List *const lst)
 {
     List_verify(lst);
 
-    int32_t elem_cnt = lst->free = lst->data_size;
+    int elem_cnt = lst->free = lst->data_size;
     for (;  elem_cnt < lst->data_capacity - 1; ++elem_cnt)
     {
         List_elem_info * cur_info = List_info_iterator(lst, elem_cnt    );
@@ -760,26 +760,26 @@ static int32_t _List_fill_free(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-static void *List_value_iterator(List *const lst, const int32_t index)
+static void *List_value_iterator(List *const lst, const int index)
 {
     assert(lst != nullptr);
 
-    return (int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)) + sizeof(List_elem_info);
+    return (char *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)) + sizeof(List_elem_info);
 }
 
-static List_elem_info *List_info_iterator(List *const lst, const int32_t index)
+static List_elem_info *List_info_iterator(List *const lst, const int index)
 {
     assert(lst != nullptr);
 
-    return (List_elem_info *) ((int8_t *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)));
+    return (List_elem_info *) ((char *) lst->data + index * (lst->elem_size + sizeof(List_elem_info)));
 }
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_ctor(List *const lst, const int elem_size,    const char *name_file,
-                                                            const char *name_func,
-                                                            const char *name_var ,
-                                                            const uint32_t line   )
+int _List_ctor(List *const lst, const int elem_size,    const char *name_file,
+                                                        const char *name_func,
+                                                        const char *name_var ,
+                                                        const int   line   )
 {
     if (lst          == nullptr) return 1 << NULLPTR_LIST      ;
     if (lst->is_ctor == true   ) return 1 << ALREADY_CTORED    ;
@@ -804,7 +804,7 @@ int32_t _List_ctor(List *const lst, const int elem_size,    const char *name_fil
     return OK;
 }
 
-int32_t _List_dtor(List *const lst)
+int _List_dtor(List *const lst)
 {
     List_verify(lst);
 
@@ -832,7 +832,7 @@ static int List_cmp(void *lst_a, void *lst_b)
     return 0;
 }
 
-int32_t _List_line(List *const lst)
+int _List_line(List *const lst)
 {
     List_verify(lst);
 
@@ -920,16 +920,16 @@ static int _List_check_linearity(List *const lst, const int index)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_push(List *const lst, const int32_t index, void *const push_val,  const char   *call_file,
-                                                                                const char   *call_func,
-                                                                                const int32_t call_line)
+int _List_push(List *const lst, const int index, void *const push_val,  const char   *call_file,
+                                                                        const char   *call_func,
+                                                                        const int     call_line)
 {
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
     List_verify(lst);
 
-    int32_t ret_push = _List_push(lst, index, push_val);
+    int ret_push = _List_push(lst, index, push_val);
     if     (ret_push == -1)
     {
         log_param_place(call_file, call_func, call_line);
@@ -939,7 +939,7 @@ int32_t _List_push(List *const lst, const int32_t index, void *const push_val,  
     return ret_push;
 }
 
-int32_t _List_push(List *const lst, const int32_t index, void *const push_val)
+int _List_push(List *const lst, const int index, void *const push_val)
 {
     List_verify         (lst);
    _List_check_linearity(lst, index);
@@ -991,7 +991,7 @@ int _List_push_order(List *const lst, const int order, void *const push_val, con
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_pop(List *const lst, const int32_t index)
+int _List_pop(List *const lst, const int index)
 {
     List_verify         (lst);
    _List_check_linearity(lst, index);
@@ -1012,7 +1012,7 @@ int32_t _List_pop(List *const lst, const int32_t index)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_get(List *const lst, const int32_t index, void *const pull_val)
+int _List_get(List *const lst, const int index, void *const pull_val)
 {
     List_verify(lst);
 
@@ -1025,7 +1025,7 @@ int32_t _List_get(List *const lst, const int32_t index, void *const pull_val)
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_add_free(List *const lst, const int32_t index)
+static int _List_add_free(List *const lst, const int index)
 {
     List_verify(lst);
 
@@ -1056,7 +1056,7 @@ static int32_t _List_add_free(List *const lst, const int32_t index)
 
 /*___________________________________________________________________________________________*/
 
-static int32_t _List_del_free(List *const lst)
+static int _List_del_free(List *const lst)
 {
     List_verify(lst);
 
@@ -1073,17 +1073,17 @@ static int32_t _List_del_free(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_push_front(List *const lst, void *const push_val, const char   *call_file,
-                                                                const char   *call_func,
-                                                                const int32_t call_line)
+int _List_push_front(List *const lst, void *const push_val, const char   *call_file,
+                                                            const char   *call_func,
+                                                            const int     call_line)
 {
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
     List_verify(lst);
 
-    int32_t ret_push_front = _List_push_front(lst, push_val);
-    if     (ret_push_front == -1)
+    int ret_push_front = _List_push_front(lst, push_val);
+    if (ret_push_front == -1)
     {
         log_param_place(call_file, call_func, call_line);
         return -1;
@@ -1092,7 +1092,7 @@ int32_t _List_push_front(List *const lst, void *const push_val, const char   *ca
     return ret_push_front;
 }
 
-static int32_t _List_push_front(List *const lst, void *const push_val)
+static int _List_push_front(List *const lst, void *const push_val)
 {
     List_verify(lst);
 
@@ -1101,17 +1101,17 @@ static int32_t _List_push_front(List *const lst, void *const push_val)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_push_back(List *const lst, void *const push_val,  const char   *call_file,
-                                                                const char   *call_func,
-                                                                const int32_t call_line)
+int _List_push_back(List *const lst, void *const push_val,  const char   *call_file,
+                                                            const char   *call_func,
+                                                            const int     call_line)
 {
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
     List_verify(lst);
 
-    int32_t ret_push_back = _List_push_back(lst, push_val);                             
-    if     (ret_push_back == -1)        
+    int ret_push_back = _List_push_back(lst, push_val);                             
+    if (ret_push_back == -1)        
     {
         log_param_place(call_file, call_func, call_line);
         return -1;
@@ -1120,7 +1120,7 @@ int32_t _List_push_back(List *const lst, void *const push_val,  const char   *ca
     return ret_push_back;
 }
 
-int32_t _List_push_back(List *const lst, void *const push_val)
+int _List_push_back(List *const lst, void *const push_val)
 {
     List_verify(lst);
 
@@ -1129,7 +1129,7 @@ int32_t _List_push_back(List *const lst, void *const push_val)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_pop_front(List *const lst)
+int _List_pop_front(List *const lst)
 {
     List_verify(lst);
 
@@ -1138,7 +1138,7 @@ int32_t _List_pop_front(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_pop_back(List *const lst)
+int _List_pop_back(List *const lst)
 {
     List_verify(lst);
 
@@ -1147,7 +1147,7 @@ int32_t _List_pop_back(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_front(List *const lst, void *const pull_val)
+int _List_front(List *const lst, void *const pull_val)
 {
     List_verify(lst);
 
@@ -1156,7 +1156,7 @@ int32_t _List_front(List *const lst, void *const pull_val)
 
 /*___________________________________________________________________________________________*/
 
-int32_t _List_back(List *const lst, void *const pull_val)
+int _List_back(List *const lst, void *const pull_val)
 {
     List_verify(lst);
 

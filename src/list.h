@@ -47,10 +47,10 @@ enum LIST_ERRORS
 #define List_ctor(lst, elem_size)                                                               \
        if (true)                                                                                \
        {                                                                                        \
-            int32_t ret_ctor = _List_ctor(lst, elem_size, __FILE__           ,                  \
-                                                          __PRETTY_FUNCTION__,                  \
-                                                          #lst               ,                  \
-                                                          __LINE__           );                 \
+            int ret_ctor = _List_ctor(lst, elem_size, __FILE__           ,                      \
+                                                      __PRETTY_FUNCTION__,                      \
+                                                      #lst               ,                      \
+                                                      __LINE__           );                     \
                                                                                                 \
             if      (ret_ctor == -1) log_place();                                               \
             else if (ret_ctor != OK)                                                            \
@@ -63,7 +63,7 @@ enum LIST_ERRORS
 #define List_dtor(lst)                                                                          \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_dtor = _List_dtor(lst);                                                 \
+            int ret_dtor = _List_dtor(lst);                                                     \
                                                                                                 \
             if (ret_dtor == -1) log_place();                                                    \
         }
@@ -77,7 +77,7 @@ enum LIST_ERRORS
 #define List_pop(lst, index)                                                                    \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop = _List_pop(lst, index);                                            \
+            int ret_pop = _List_pop(lst, index);                                                \
                                                                                                 \
             if (ret_pop != OK)  log_place();                                                    \
         }
@@ -93,7 +93,7 @@ enum LIST_ERRORS
 #define List_get(lst, index, pull_val)                                                          \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_get = _List_get(lst, index, pull_val);                                  \
+            int ret_get = _List_get(lst, index, pull_val);                                      \
                                                                                                 \
             if (ret_get != OK) log_place();                                                     \
         }
@@ -115,7 +115,7 @@ enum LIST_ERRORS
 #define List_pop_front(lst)                                                                     \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop_front = _List_pop_front(lst);                                       \
+            int ret_pop_front = _List_pop_front(lst);                                           \
                                                                                                 \
             if (ret_pop_front != OK) log_place();                                               \
         }
@@ -123,7 +123,7 @@ enum LIST_ERRORS
 #define List_pop_back(lst)                                                                      \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_pop_back = _List_pop_back(lst);                                         \
+            int ret_pop_back = _List_pop_back(lst);                                             \
                                                                                                 \
             if (ret_pop_back != OK) log_place();                                                \
         }
@@ -131,7 +131,7 @@ enum LIST_ERRORS
 #define List_front(lst, pull_val)                                                               \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_front = _List_front(lst, pull_val);                                     \
+            int ret_front = _List_front(lst, pull_val);                                         \
                                                                                                 \
             if (ret_front != OK) log_place();                                                   \
         }
@@ -139,7 +139,7 @@ enum LIST_ERRORS
 #define List_back(lst, pull_val)                                                                \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_back = _List_back(lst, pull_val);                                       \
+            int ret_back = _List_back(lst, pull_val);                                           \
                                                                                                 \
             if (ret_back != OK) log_place();                                                    \
         }
@@ -147,7 +147,7 @@ enum LIST_ERRORS
 #define List_line(lst)                                                                          \
         if (true)                                                                               \
         {                                                                                       \
-            int32_t ret_line = _List_line(lst);                                                 \
+            int ret_line = _List_line(lst);                                                     \
                                                                                                 \
             if (ret_line != OK) log_place();                                                    \
         }
@@ -158,38 +158,38 @@ void              List_dump             (List *const lst);
 void              List_simple_dump      (List *const lst);
 void              List_graph_dump       (List *const lst);
 
-int32_t          _List_line             (List *const lst);
+int              _List_line             (List *const lst);
 
-void              List_error            (const uint32_t err);
+void              List_error            (const unsigned int err);
 int              _List_order_to_index   (List *const lst, int order);
 
-int32_t          _List_ctor             (List *const lst, const int elem_size,  const char    *name_file,
+int              _List_ctor             (List *const lst, const int elem_size,  const char    *name_file,
                                                                                 const char    *name_func,
                                                                                 const char    *name_var ,
-                                                                                const uint32_t      line);
-int32_t          _List_dtor             (List *const lst);
+                                                                                const int      line);
+int              _List_dtor             (List *const lst);
 
-int32_t          _List_push             (List *const lst, const int32_t index, void *const         push_val ,
-                                                                                     const char   *call_file,
-                                                                                     const char   *call_func,
-                                                                                     const int32_t call_line);
+int              _List_push             (List *const lst, const int index, void *const         push_val ,
+                                                                                 const char   *call_file,
+                                                                                 const char   *call_func,
+                                                                                 const int     call_line);
 
-int32_t          _List_pop              (List *const lst, const int32_t index);
-int32_t          _List_get              (List *const lst, const int32_t index, void *const pull_val);
+int              _List_pop              (List *const lst, const int index);
+int              _List_get              (List *const lst, const int index, void *const pull_val);
 
-int32_t          _List_push_front       (List *const lst, void *const push_val, const char   *call_file,
+int              _List_push_front       (List *const lst, void *const push_val, const char   *call_file,
                                                                                 const char   *call_func,
-                                                                                const int32_t call_line);
+                                                                                const int     call_line);
 
-int32_t          _List_push_back        (List *const lst, void *const push_val, const char   *call_file,
+int              _List_push_back        (List *const lst, void *const push_val, const char   *call_file,
                                                                                 const char   *call_func,
-                                                                                const int32_t call_line);
+                                                                                const int     call_line);
 
-int32_t          _List_pop_front        (List *const lst);
-int32_t          _List_pop_back         (List *const lst);
+int              _List_pop_front        (List *const lst);
+int              _List_pop_back         (List *const lst);
 
-int32_t          _List_front            (List *const lst, void *const pull_val);
-int32_t          _List_back             (List *const lst, void *const pull_val);
+int              _List_front            (List *const lst, void *const pull_val);
+int              _List_back             (List *const lst, void *const pull_val);
 
 int              _List_push_order       (List *const lst, const int order, void *const       push_val,
                                                                                  const char *call_file,

@@ -28,7 +28,7 @@ void log_char_ptr      (const char *str_name, const char *str);
 
 void log_param_place   (const char   *file,
                         const char   *func,
-                        const int32_t line);
+                        const int     line);
 
 /*___________________________________________________________________________________________*/
 
