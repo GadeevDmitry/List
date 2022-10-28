@@ -128,6 +128,7 @@ enum GRAPH_COLOR
     LIGHT_BLUE      ,
     LIGHT_RED       ,
     LIGHT_GREEN     ,
+    LIGHT_GREY      ,
 
     DARK_BLUE       ,
     DARK_RED        ,
@@ -142,6 +143,7 @@ const char *color_names[] =
     "lightblue"     ,
     "lightred"      ,
     "lightgreen"    ,
+    "lightgrey"     ,
 
     "darkblue"      ,
     "darkred"       ,
@@ -373,7 +375,7 @@ const char *color_names[] =
 
 void              List_dump             (List *const lst);
 void              List_simple_dump      (List *const lst);
-void              List_graph_dump       (List *const lst);
+void              List_graph_order_dump (List *const lst);
 
 int              _List_line             (List *const lst);
 
@@ -586,7 +588,7 @@ void List_simple_dump(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-void List_graph_dump(List *const lst)
+void List_graph_order_dump(List *const lst)
 {
     List_simple_dump(lst);
     if (lst->data == nullptr) return;
@@ -606,7 +608,7 @@ void List_graph_dump(List *const lst)
     setvbuf(stream, nullptr, _IONBF, 0);
     fprintf(stream, "digraph {\n"
                     "rankdir=LR\n"
-                    "node[shape=record, style=\"rounded\", fontsize=8]\n");
+                    "node[shape=record, style=\"rounded, filled\", fontsize=8]\n");
 
     List_elem_info *info = nullptr;
 
@@ -645,7 +647,7 @@ void List_graph_dump(List *const lst)
     char cmd[graph_cmd_size] = "";
     sprintf     (cmd, "dot %s -T png -o dump_png/List_graph_dump%d.png", output_file, cur_dump);
     system      (cmd);
-    log_message ("<img width=500 src=dump_png/List_graph_dump%d.png>\n", cur_dump);
+    log_message ("<img width=95%% src=dump_png/List_graph_dump%d.png>\n", cur_dump);
 
     fclose(stream);
     ++cur_dump;
@@ -661,7 +663,7 @@ static void describe_node(List_elem_info *info, FILE *const stream, const int nu
 
     if (!number)
     {
-        fillcolor = WHITE;
+        fillcolor = LIGHT_GREY;
             color = BLACK;
     }
     else if (info->is_free)
@@ -679,31 +681,31 @@ static void describe_node(List_elem_info *info, FILE *const stream, const int nu
     {
         if (info->next != nullptr)
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d | index = %d | next = %d | prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                   info->is_free,
-                                                                                                   info->index,
-                                                                                                   info->next->index);
+                            "label=\"{is_free = %d \n| index = %d \n| next = %d \n| prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                         info->is_free,
+                                                                                                         info->index,
+                                                                                                         info->next->index);
         else
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d | index = %d | next = NULL | prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                     info->is_free,
-                                                                                                     info->index  );
+                            "label=\"{is_free = %d \n| index = %d \n| next = NULL \n| prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                           info->is_free,
+                                                                                                           info->index  );
     }
     else //info->prev != nullptr
     {
         if (info->next != nullptr)
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d | index = %d | next = %d | prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                 info->is_free,
-                                                                                                 info->index,
-                                                                                                 info->next->index,
-                                                                                                 info->prev->index);
+                            "label=\"{is_free = %d \n| index = %d \n| next = %d \n| prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                       info->is_free,
+                                                                                                       info->index,
+                                                                                                       info->next->index,
+                                                                                                       info->prev->index);
         else
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d | index = %d | next = NULL | prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                   info->is_free,
-                                                                                                   info->index,
-                                                                                                   info->prev->index);
+                            "label=\"{is_free = %d \n| index = %d \n| next = NULL \n| prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                         info->is_free,
+                                                                                                         info->index,
+                                                                                                         info->prev->index);
     }
 }
 
