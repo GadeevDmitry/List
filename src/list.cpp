@@ -627,7 +627,7 @@ void List_graph_dump(List *const lst, GRAPH_MODE mode)
     char cmd[graph_cmd_size] = "";
     sprintf     (cmd, "dot %s -T png -o dump_png/List_graph_dump%d.png", output_file, cur_dump);
     system      (cmd);
-    log_message ("<img width=95%% src=dump_png/List_graph_dump%d.png>\n", cur_dump);
+    log_message ("<img src=dump_png/List_graph_dump%d.png>\n", cur_dump);
 
     fclose(stream);
     ++cur_dump;
