@@ -85,7 +85,12 @@ static int LOG_STREAM_OPEN()
 {
     LOG_STREAM = fopen(LOG_FILE, "w");
 
-    assert (LOG_STREAM != nullptr);
+    if (LOG_STREAM == nullptr)
+    {
+        fprintf(stderr, "ERROR: Can't open log file. All log-messages will disappear\n");
+        return 0;
+    }
+
     setvbuf(LOG_STREAM,   nullptr, _IONBF, 0);
     fprintf(LOG_STREAM, "<pre>\n""\"%s\" OPENING IS OK\n\n", LOG_FILE);
 
@@ -124,6 +129,8 @@ void log_param_place(const char   *file,
 
 void log_message(const char *fmt, ...)
 {
+    if (_OPEN_CLOSE_LOG_STREAM == 0) return;
+
     va_list ap;
     va_start(ap, fmt);
 
@@ -140,6 +147,8 @@ void log_char_ptr(const char *str_name, const char *str)
 
 void log_error(const char *fmt, ...)
 {
+    if (_OPEN_CLOSE_LOG_STREAM == 0) return;
+
     va_list ap;
     va_start(ap, fmt);
 
@@ -150,6 +159,8 @@ void log_error(const char *fmt, ...)
 
 void log_warning(const char *fmt, ...)
 {
+    if (_OPEN_CLOSE_LOG_STREAM == 0) return;
+
     va_list ap;
     va_start(ap, fmt);
 

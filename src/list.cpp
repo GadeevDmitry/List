@@ -462,7 +462,7 @@ static unsigned int _List_verify(List *const lst)
 
 static unsigned int _List_info_verify(List *const lst)
 {
-    unsigned nt err = 0;
+    unsigned int err = 0;
 
     for (int info_index = 0; info_index < lst->data_size; ++info_index)
     {
