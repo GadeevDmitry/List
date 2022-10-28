@@ -10,9 +10,8 @@
 #define GREEN  "<font color=LimeGreen>"
 #define BLUE   "<font color=MediumBlue>"
 #define OLIVE  "<font color=Olive>"
-#define BLACK  "<font color=Black>"
+#define USUAL  "<font color=Black>"
 #define CANCEL "</font>"
-#define USUAL  BLACK
 
 #define LOG_FILE "log.html"
 

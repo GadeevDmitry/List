@@ -120,6 +120,37 @@ const char *error_messages[] =
     "Memory limit exceeded"
 };
 
+static const int graph_file_size = 40           ;
+static const int graph_cmd_size  = 100          ;
+
+enum GRAPH_COLOR
+{
+    LIGHT_BLUE      ,
+    LIGHT_RED       ,
+    LIGHT_GREEN     ,
+
+    DARK_BLUE       ,
+    DARK_RED        ,
+    DARK_GREEN      ,
+
+    WHITE           ,
+    BLACK
+};
+
+const char *color_names[] =
+{
+    "lightblue"     ,
+    "lightred"      ,
+    "lightgreen"    ,
+
+    "darkblue"      ,
+    "darkred"       ,
+    "darkgreen"     ,
+
+    "white"         ,
+    "black"
+};
+
 /*_____________________________________MACRO_DEFINITIONS_____________________________________*/
 
 #define List_ctor(lst, elem_size)                                                               \
@@ -341,6 +372,9 @@ const char *error_messages[] =
 /*________________________________USER_FUNCTION_DECLARATIONS_________________________________*/
 
 void              List_dump             (List *const lst);
+void              List_simple_dump      (List *const lst);
+void              List_graph_dump       (List *const lst);
+
 int32_t          _List_line             (List *const lst);
 
 void              List_error            (const uint32_t err);
@@ -401,6 +435,8 @@ static int32_t          _List_push              (List *const lst, const int32_t 
 static int32_t          _List_push_front        (List *const lst,                      void *const push_val);
 static int32_t          _List_push_back         (List *const lst,                      void *const push_val);
 
+static void              describe_node          (List_elem_info *info, FILE *const stream, const int number);
+
 /*___________________________________________________________________________________________*/
 
 static uint32_t _List_verify(List *const lst)
@@ -454,38 +490,12 @@ void List_error(const uint32_t err)
     }
 }
 
+/*___________________________________________________________________________________________*/
+
 void List_dump(List *const lst)
 {
-    log_message("\n"
-                "List[%p]\n", lst);
-
-    if (lst == nullptr) return;
-
-    var_dump(&lst->var_info);
-
-    log_message("List = {\n"
-                "       data:           %p\n"
-                "       data_size:      %d\n"
-                "       data_capacity:  %d\n"
-                "                         \n"
-                "       elem_size:      %d\n"
-                "                         \n"
-                "       free:           %d\n"
-                "                         \n"
-                "       is_ctor:        %d\n"
-                "       is_linear:      %d\n"
-                "       }\n",
-
-                        lst->data,
-                        lst->data_size,
-                        lst->data_capacity,
-                        
-                        lst->elem_size,
-                        
-                        lst->free,
-                        
-                        lst->is_ctor,
-                        lst->is_linear);
+    List_simple_dump(lst);  
+    if (lst->data == nullptr) return;
     
     log_message("\n"
                 "index: ");
@@ -536,6 +546,165 @@ void List_dump(List *const lst)
         else                                 log_message(USUAL "%-8d " CANCEL, cur_info->prev->index);
     }
     log_message("\n");
+}
+
+/*___________________________________________________________________________________________*/
+
+void List_simple_dump(List *const lst)
+{
+    log_message("\n"
+                "List[%p]\n", lst);
+
+    if (lst == nullptr) return;
+
+    var_dump(&lst->var_info);
+
+    log_message("List = {\n"
+                "       data:           %p\n"
+                "       data_size:      %d\n"
+                "       data_capacity:  %d\n"
+                "                         \n"
+                "       elem_size:      %d\n"
+                "                         \n"
+                "       free:           %d\n"
+                "                         \n"
+                "       is_ctor:        %d\n"
+                "       is_linear:      %d\n"
+                "       }\n",
+
+                        lst->data,
+                        lst->data_size,
+                        lst->data_capacity,
+                        
+                        lst->elem_size,
+                        
+                        lst->free,
+                        
+                        lst->is_ctor,
+                        lst->is_linear);
+}
+
+/*___________________________________________________________________________________________*/
+
+void List_graph_dump(List *const lst)
+{
+    List_simple_dump(lst);
+    if (lst->data == nullptr) return;
+
+    static int cur_dump = 1;
+
+    char    output_file[graph_file_size] = "";
+    sprintf(output_file, "dump_txt/List_graph_dump%d.txt", cur_dump);
+
+    FILE *stream =  fopen(output_file, "w");
+    if   (stream == nullptr)
+    {
+        log_error("Can't open grah_dump output file\n");
+        return;
+    }
+
+    setvbuf(stream, nullptr, _IONBF, 0);
+    fprintf(stream, "digraph {\n"
+                    "rankdir=LR\n"
+                    "node[shape=record, style=\"rounded\", fontsize=8]\n");
+
+    List_elem_info *info = nullptr;
+
+    for (int cnt = 0; cnt < lst->data_capacity; ++cnt)
+    {
+        info = List_info_iterator(lst, cnt);
+        describe_node(info, stream,    cnt);
+    }
+
+    info = List_info_iterator(lst, 0);
+    for (int cnt = 0;; cnt++)
+    {
+        if (info->next != nullptr) 
+        {
+            if (info->next->index != 0) fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n", info->index, info->next->index);
+            else                        fprintf(stream, "node%d->node%d[weight=1    , color=\"red\"]\n", info->index, info->next->index);
+        }
+
+        info = List_info_iterator(lst, info->next->index);
+
+        if (info->index == 0 || cnt > lst->data_size) break;
+    }
+
+    info = List_info_iterator(lst, lst->free);
+    for (int cnt = lst->free;; cnt++)
+    {
+        if (info->next != nullptr) fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n"       , info->index, info->next->index);
+
+        info = List_info_iterator(lst, info->next->index);
+
+        if (info->index == lst->free || cnt > lst->data_capacity - lst->data_size) break;
+    }
+
+    fprintf(stream, "}\n");
+
+    char cmd[graph_cmd_size] = "";
+    sprintf     (cmd, "dot %s -T png -o dump_png/List_graph_dump%d.png", output_file, cur_dump);
+    system      (cmd);
+    log_message ("<img width=500 src=dump_png/List_graph_dump%d.png>\n", cur_dump);
+
+    fclose(stream);
+    ++cur_dump;
+}
+
+static void describe_node(List_elem_info *info, FILE *const stream, const int number)
+{
+    assert(info   != nullptr);
+    assert(stream != nullptr);
+
+    GRAPH_COLOR fillcolor = WHITE;
+    GRAPH_COLOR     color = WHITE; 
+
+    if (!number)
+    {
+        fillcolor = WHITE;
+            color = BLACK;
+    }
+    else if (info->is_free)
+    {
+        fillcolor = LIGHT_BLUE;
+            color =  DARK_BLUE;
+    }
+    else
+    {
+        fillcolor = LIGHT_GREEN;
+            color =  DARK_GREEN;
+    }
+
+    if (info->prev == nullptr)
+    {
+        if (info->next != nullptr)
+            fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
+                            "label=\"{is_free = %d | index = %d | next = %d | prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                   info->is_free,
+                                                                                                   info->index,
+                                                                                                   info->next->index);
+        else
+            fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
+                            "label=\"{is_free = %d | index = %d | next = NULL | prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                     info->is_free,
+                                                                                                     info->index  );
+    }
+    else //info->prev != nullptr
+    {
+        if (info->next != nullptr)
+            fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
+                            "label=\"{is_free = %d | index = %d | next = %d | prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                 info->is_free,
+                                                                                                 info->index,
+                                                                                                 info->next->index,
+                                                                                                 info->prev->index);
+        else
+            fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
+                            "label=\"{is_free = %d | index = %d | next = NULL | prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                   info->is_free,
+                                                                                                   info->index,
+                                                                                                   info->prev->index);
+    }
 }
 
 /*___________________________________________________________________________________________*/

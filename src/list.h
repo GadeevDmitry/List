@@ -155,6 +155,9 @@ enum LIST_ERRORS
 /*________________________________USER_FUNCTION_DECLARATIONS_________________________________*/
 
 void              List_dump             (List *const lst);
+void              List_simple_dump      (List *const lst);
+void              List_graph_dump       (List *const lst);
+
 int32_t          _List_line             (List *const lst);
 
 void              List_error            (const uint32_t err);
