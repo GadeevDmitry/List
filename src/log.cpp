@@ -44,6 +44,8 @@ void log_error         (const char *fmt, ...);
 */
 void log_warning       (const char *fmt, ...);
 
+void log_header        (const char *fmt, ...);
+
 /**
 *   @brief Prints string in LOG_FILE even if it is "nullptr" or "poison".
 *
@@ -135,6 +137,18 @@ void log_message(const char *fmt, ...)
     va_start(ap, fmt);
 
     vfprintf(LOG_STREAM, fmt, ap);
+}
+
+void log_header(const char *fmt, ...)
+{
+    if (_OPEN_CLOSE_LOG_STREAM == 0) return;
+
+    va_list ap;
+    va_start(ap, fmt);
+
+    fprintf (LOG_STREAM, "<h2>\n");
+    vfprintf(LOG_STREAM, fmt, ap);
+    fprintf (LOG_STREAM, "</h2>\n");
 }
 
 void log_char_ptr(const char *str_name, const char *str)

@@ -23,6 +23,7 @@
 void log_message       (const char *fmt, ...);
 void log_error         (const char *fmt, ...);
 void log_warning       (const char *fmt, ...);
+void log_header        (const char *fmt, ...);
 
 void log_char_ptr      (const char *str_name, const char *str);
 

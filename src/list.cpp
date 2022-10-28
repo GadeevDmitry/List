@@ -757,13 +757,31 @@ static int _List_realloc(List *const lst)
 
     if (lst->data_size == lst->data_capacity)
     {
-        int future_capacity = 2 * lst->data_capacity;
-        void   *temp_lst_data   = realloc(lst->data, (lst->elem_size + sizeof(List_elem_info)) * future_capacity);
+        int   future_capacity = 2 * lst->data_capacity;
+        void *temp_lst_data   = calloc(future_capacity, lst->elem_size + sizeof(List_elem_info));
 
         if (temp_lst_data == nullptr) return 1 << MEMORY_LIMIT_EXCEEDED;
 
+        for (int cnt = 0; cnt < lst->data_size; ++cnt)
+        {
+            List_elem_info *   cur_info =                    List_info_iterator(lst, cnt);
+            List_elem_info *future_info = (List_elem_info *) get_ptr(temp_lst_data , cnt,                  lst->elem_size + sizeof(List_elem_info));
+
+            future_info->prev           = (List_elem_info *) get_ptr(temp_lst_data, cur_info->prev->index, lst->elem_size + sizeof(List_elem_info));
+            future_info->next           = (List_elem_info *) get_ptr(temp_lst_data, cur_info->next->index, lst->elem_size + sizeof(List_elem_info));
+            future_info->index          = cnt;
+            future_info->is_free        = false;
+
+            void *future_value = (char *) get_ptr(temp_lst_data  , cnt, lst->elem_size + sizeof(List_elem_info)) + sizeof(List_elem_info);
+            void *   cur_value =          List_value_iterator(lst, cnt);
+
+            memcpy(future_value, cur_value, lst->elem_size);
+        }
+
         lst->data_capacity = future_capacity;
-        lst->data          = temp_lst_data  ;
+        
+        free(lst->data);
+        lst->data = temp_lst_data;
 
         List_fill_free(lst);
         List_verify   (lst);
@@ -778,7 +796,7 @@ static int _List_fill_free(List *const lst)
     List_verify(lst);
 
     int elem_cnt = lst->free = lst->data_size;
-    for (;  elem_cnt < lst->data_capacity - 1; ++elem_cnt)
+    for (; elem_cnt < lst->data_capacity - 1; ++elem_cnt)
     {
         List_elem_info * cur_info = List_info_iterator(lst, elem_cnt    );
         List_elem_info *next_info = List_info_iterator(lst, elem_cnt + 1);
@@ -966,6 +984,9 @@ int _List_push(List *const lst, const int index, void *const push_val,  const ch
                                                                         const char   *call_func,
                                                                         const int     call_line)
 {
+    log_param_place(call_file, call_func, call_line);
+    log_header("LIST PUSH\n");
+
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
@@ -977,6 +998,8 @@ int _List_push(List *const lst, const int index, void *const push_val,  const ch
         log_param_place(call_file, call_func, call_line);
         return -1;
     }
+    List_graph_dump(lst, INDEX);
+    log_message("<hr>");
 
     return ret_push;
 }
@@ -996,8 +1019,7 @@ int _List_push(List *const lst, const int index, void *const push_val)
     List_del_free(lst);
 
     memcpy(pushed_elem, push_val, lst->elem_size);
-    
-    
+
     pushed_info->next = pocket_info->next;
     pocket_info->next = pushed_info;
     pushed_info->prev = pocket_info;
@@ -1016,6 +1038,9 @@ int _List_push_order(List *const lst, const int order, void *const push_val, con
                                                                              const char *call_func,
                                                                              const int   call_line)
 {
+    log_param_place(call_file, call_func, call_line);
+    log_header("LIST PUSH ORDER\n");
+
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
@@ -1028,6 +1053,9 @@ int _List_push_order(List *const lst, const int order, void *const push_val, con
         log_param_place(call_file, call_func, call_line);
         return -1;
     }
+    List_graph_dump(lst, INDEX);
+    log_message("<hr>");
+
     return ret_push;
 }
 
@@ -1119,6 +1147,9 @@ int _List_push_front(List *const lst, void *const push_val, const char   *call_f
                                                             const char   *call_func,
                                                             const int     call_line)
 {
+    log_param_place(call_file, call_func, call_line);
+    log_header("LIST PUSH FRONT\n");
+
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 
@@ -1147,6 +1178,9 @@ int _List_push_back(List *const lst, void *const push_val,  const char   *call_f
                                                             const char   *call_func,
                                                             const int     call_line)
 {
+    log_param_place(call_file, call_func, call_line);
+    log_header("LIST PUSH BACK\n");
+
     assert(call_file != nullptr);
     assert(call_func != nullptr);
 

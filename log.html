@@ -2,7 +2,14 @@
 "log.html" OPENING IS OK
 
 
-List[0x7fff2e83d9d0]
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 17
+<h2>
+LIST CTOR
+</h2>
+
+List[0x7ffff8ee2e00]
 
 name    of var : <font color=Black>"test"
 </font>created in file: <font color=Black>"test.cpp"
@@ -10,46 +17,28 @@ name    of var : <font color=Black>"test"
 </font>created in line: 17
 
 List = {
-       data:           0x564b7cb29480
-       data_size:      5
-       data_capacity:  8
+       data:           0x561e2f49f480
+       data_size:      1
+       data_capacity:  4
                          
        elem_size:      8
                          
-       free:           2
+       free:           1
                          
        is_ctor:        1
-       is_linear:      0
-       }
-
-    index: 0        1        2        3        4        5        6        7        
-
-condition: <font color=LimeGreen>BUSY     </font><font color=LimeGreen>BUSY     </font><font color=Olive>FREE     </font><font color=LimeGreen>BUSY     </font><font color=LimeGreen>BUSY     </font><font color=LimeGreen>BUSY     </font><font color=Olive>FREE     </font><font color=Olive>FREE     </font>
-     next: <font color=Black>1        </font><font color=Black>5        </font><font color=Black>6        </font><font color=Black>4        </font><font color=Black>0        </font><font color=Black>3        </font><font color=Black>7        </font><font color=Olive>NULL     </font>
-     prev: <font color=Black>4        </font><font color=Black>0        </font><font color=Olive>NULL     </font><font color=Black>5        </font><font color=Black>3        </font><font color=Black>1        </font><font color=Olive>NULL     </font><font color=Olive>NULL     </font>
-
-List[0x7fff2e83d9d0]
-
-name    of var : <font color=Black>"test"
-</font>created in file: <font color=Black>"test.cpp"
-</font>created in func: <font color=Black>"int main()"
-</font>created in line: 17
-
-List = {
-       data:           0x564b7cb29480
-       data_size:      5
-       data_capacity:  8
-                         
-       elem_size:      8
-                         
-       free:           2
-                         
-       is_ctor:        1
-       is_linear:      0
+       is_linear:      1
        }
 <img src=dump_png/List_graph_dump1.png>
+<hr>
 
-List[0x7fff2e83d9d0]
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 22
+<h2>
+LIST PUSH ORDER
+</h2>
+
+List[0x7ffff8ee2e00]
 
 name    of var : <font color=Black>"test"
 </font>created in file: <font color=Black>"test.cpp"
@@ -57,7 +46,211 @@ name    of var : <font color=Black>"test"
 </font>created in line: 17
 
 List = {
-       data:           0x564b7cb29480
+       data:           0x561e2f49f480
+       data_size:      2
+       data_capacity:  4
+                         
+       elem_size:      8
+                         
+       free:           2
+                         
+       is_ctor:        1
+       is_linear:      1
+       }
+<img src=dump_png/List_graph_dump2.png>
+<hr>
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 23
+<h2>
+LIST PUSH ORDER
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f480
+       data_size:      3
+       data_capacity:  4
+                         
+       elem_size:      8
+                         
+       free:           3
+                         
+       is_ctor:        1
+       is_linear:      1
+       }
+<img src=dump_png/List_graph_dump3.png>
+<hr>
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 24
+<h2>
+LIST PUSH ORDER
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f480
+       data_size:      4
+       data_capacity:  4
+                         
+       elem_size:      8
+                         
+       free:           4
+                         
+       is_ctor:        1
+       is_linear:      1
+       }
+<img src=dump_png/List_graph_dump4.png>
+<hr>
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 25
+<h2>
+LIST PUSH BACK
+</h2>
+
+    FILE: list.cpp
+FUNCTION: int _List_push_back(List*, void*)
+    LINE: 1203
+<h2>
+LIST PUSH
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      5
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           5
+                         
+       is_ctor:        1
+       is_linear:      1
+       }
+<img src=dump_png/List_graph_dump5.png>
+<hr>
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 26
+<h2>
+LIST POP ORDER
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      4
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           4
+                         
+       is_ctor:        1
+       is_linear:      1
+       }
+<img src=dump_png/List_graph_dump6.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 27
+<h2>
+LIST PUSH ORDER
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      5
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           5
+                         
+       is_ctor:        1
+       is_linear:      1
+       }
+<img src=dump_png/List_graph_dump7.png>
+<hr>
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 28
+<h2>
+LIST PUSH ORDER
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      6
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           6
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump8.png>
+<hr>
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 29
+<h2>
+LIST POP
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
        data_size:      5
        data_capacity:  8
                          
@@ -68,7 +261,268 @@ List = {
        is_ctor:        1
        is_linear:      0
        }
-<img src=dump_png/List_graph_dump2.png>
+<img src=dump_png/List_graph_dump9.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 37
+<h2>
+LIST FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      5
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           2
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump10.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 39
+<h2>
+LIST POP FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      4
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           1
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump11.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 37
+<h2>
+LIST FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      4
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           1
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump12.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 39
+<h2>
+LIST POP FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      3
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           5
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump13.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 37
+<h2>
+LIST FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      3
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           5
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump14.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 39
+<h2>
+LIST POP FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      2
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           3
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump15.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 37
+<h2>
+LIST FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      2
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           3
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump16.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 39
+<h2>
+LIST POP FRONT
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=Black>"test"
+</font>created in file: <font color=Black>"test.cpp"
+</font>created in func: <font color=Black>"int main()"
+</font>created in line: 17
+
+List = {
+       data:           0x561e2f49f6f0
+       data_size:      1
+       data_capacity:  8
+                         
+       elem_size:      8
+                         
+       free:           4
+                         
+       is_ctor:        1
+       is_linear:      0
+       }
+<img src=dump_png/List_graph_dump17.png>
+<hr>
+
+    FILE: test.cpp
+FUNCTION: int main()
+    LINE: 42
+<h2>
+LIST DTOR
+</h2>
+
+List[0x7ffff8ee2e00]
+
+name    of var : <font color=MediumBlue>nullptr
+</font>created in file: <font color=MediumBlue>nullptr
+</font>created in func: <font color=MediumBlue>nullptr
+</font>created in line: 0
+
+List = {
+       data:           (nil)
+       data_size:      -1
+       data_capacity:  -1
+                         
+       elem_size:      -1
+                         
+       free:           0
+                         
+       is_ctor:        0
+       is_linear:      0
+       }
+<hr>
 
 
 "log.html" CLOSING IS OK

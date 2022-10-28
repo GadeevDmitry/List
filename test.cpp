@@ -22,17 +22,13 @@ int main()
     List_push_order(&test, 0, &(i = {3, 3}));
     List_push_order(&test, 1, &(i = {4, 4}));
     List_push_order(&test, 2, &(i = {5, 5}));
-    List_push_order(&test, 3, &(i = {8, 8}));
+    List_push_back (&test,    &(i = {8, 8}));
     List_pop_order (&test, 3);
     List_push_order(&test, 3, &(i = {9, 9}));
     List_push_order(&test, 1, &(i = {7, 7}));
     List_pop       (&test, 2);
 
     int all = test.data_size - 1;
-
-    List_dump      (&test);
-    List_graph_dump(&test, ORDER);
-    List_graph_dump(&test, INDEX);
 
     for (int i = 0; i < all; ++i)
     {
