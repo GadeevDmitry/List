@@ -138,6 +138,12 @@ enum GRAPH_COLOR
     BLACK
 };
 
+enum GRAPH_MODE
+{
+    ORDER           ,
+    INDEX
+};
+
 const char *color_names[] =
 {
     "lightblue"     ,
@@ -375,7 +381,7 @@ const char *color_names[] =
 
 void              List_dump             (List *const lst);
 void              List_simple_dump      (List *const lst);
-void              List_graph_order_dump (List *const lst);
+void              List_graph_dump       (List *const lst, GRAPH_MODE mode);
 
 int              _List_line             (List *const lst);
 
@@ -436,6 +442,9 @@ static int              _List_del_free          (List *const lst);
 static int              _List_push              (List *const lst, const int index, void *const push_val);
 static int              _List_push_front        (List *const lst,                  void *const push_val);
 static int              _List_push_back         (List *const lst,                  void *const push_val);
+
+static void              List_graph_index_dump  (List *const lst, FILE *const stream);
+static void              List_graph_order_dump  (List *const lst, FILE *const stream);
 
 static void              describe_node          (List_elem_info *info, FILE *const stream, const int number);
 
@@ -500,26 +509,26 @@ void List_dump(List *const lst)
     if (lst->data == nullptr) return;
     
     log_message("\n"
-                "index: ");
+                "    index: ");
     for (int index_cnt = 0; index_cnt < lst->data_capacity; ++index_cnt)
     {
         log_message("%-8d ", index_cnt);
     }
 
     log_message("\n\n"
-                "value: ");
+                "condition: ");
     for (int index_cnt = 0; index_cnt < lst->data_capacity; ++index_cnt)
     {
         List_elem_info *cur_info = List_info_iterator (lst, index_cnt);
         void           *cur_elem = List_value_iterator(lst, index_cnt);
 
-        if      (cur_info          == nullptr) log_message(RED   "%-8s " CANCEL, "NO INFO"            );
-        else if (cur_info->is_free == false)   log_message(USUAL "%-8d " CANCEL, *(int *) cur_elem);
-        else                                   log_message(OLIVE "%-8s " CANCEL, "FREE"               );
+        if      (cur_info          == nullptr) log_message(RED   "%-8s " CANCEL, "NO INFO");
+        else if (cur_info->is_free == false)   log_message(GREEN "%-8s " CANCEL, "BUSY"   );
+        else                                   log_message(OLIVE "%-8s " CANCEL, "FREE"   );
     }
 
     log_message("\n"
-                " next: ");
+                "     next: ");
     for (int next_cnt  = 0; next_cnt  < lst->data_capacity; ++next_cnt)
     {
         List_elem_info *cur_info = List_info_iterator(lst, next_cnt);
@@ -534,7 +543,7 @@ void List_dump(List *const lst)
     }
 
     log_message("\n"
-                " prev: ");
+                "     prev: ");
     for (int prev_cnt  = 0; prev_cnt  < lst->data_capacity; ++prev_cnt)
     {
         List_elem_info *cur_info = List_info_iterator(lst, prev_cnt);
@@ -588,7 +597,7 @@ void List_simple_dump(List *const lst)
 
 /*___________________________________________________________________________________________*/
 
-void List_graph_order_dump(List *const lst)
+void List_graph_dump(List *const lst, GRAPH_MODE mode)
 {
     List_simple_dump(lst);
     if (lst->data == nullptr) return;
@@ -610,6 +619,22 @@ void List_graph_order_dump(List *const lst)
                     "rankdir=LR\n"
                     "node[shape=record, style=\"rounded, filled\", fontsize=8]\n");
 
+    if (mode == ORDER)  List_graph_order_dump(lst, stream);
+    else      /*INDEX*/ List_graph_index_dump(lst, stream);
+
+    fprintf(stream, "}\n");
+
+    char cmd[graph_cmd_size] = "";
+    sprintf     (cmd, "dot %s -T png -o dump_png/List_graph_dump%d.png", output_file, cur_dump);
+    system      (cmd);
+    log_message ("<img width=95%% src=dump_png/List_graph_dump%d.png>\n", cur_dump);
+
+    fclose(stream);
+    ++cur_dump;
+}
+
+static void List_graph_order_dump(List *const lst, FILE *const stream)
+{
     List_elem_info *info = nullptr;
 
     for (int cnt = 0; cnt < lst->data_capacity; ++cnt)
@@ -624,33 +649,48 @@ void List_graph_order_dump(List *const lst)
         if (info->next != nullptr) 
         {
             if (info->next->index != 0) fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n", info->index, info->next->index);
-            else                        fprintf(stream, "node%d->node%d[weight=1    , color=\"red\"]\n", info->index, info->next->index);
+            else
+            {
+                                        fprintf(stream, "node%d->node%d[weight=0    , color=\"red\"]\n", info->index, info->next->index);
+                break;
+            }
+
+            info = List_info_iterator(lst, info->next->index);
         }
+        else break;
 
-        info = List_info_iterator(lst, info->next->index);
-
-        if (info->index == 0 || cnt > lst->data_size) break;
+        if (cnt > lst->data_size) break;
     }
 
     info = List_info_iterator(lst, lst->free);
     for (int cnt = lst->free;; cnt++)
     {
-        if (info->next != nullptr) fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n"       , info->index, info->next->index);
+        if (info->next != nullptr)
+        {
+            fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n", info->index, info->next->index);
+            info = List_info_iterator(lst, info->next->index);
+        }
+        else break;
 
-        info = List_info_iterator(lst, info->next->index);
-
-        if (info->index == lst->free || cnt > lst->data_capacity - lst->data_size) break;
+        if (cnt > lst->data_capacity - lst->data_size) break;
     }
+}
 
-    fprintf(stream, "}\n");
-
-    char cmd[graph_cmd_size] = "";
-    sprintf     (cmd, "dot %s -T png -o dump_png/List_graph_dump%d.png", output_file, cur_dump);
-    system      (cmd);
-    log_message ("<img width=95%% src=dump_png/List_graph_dump%d.png>\n", cur_dump);
-
-    fclose(stream);
-    ++cur_dump;
+static void List_graph_index_dump(List *const lst, FILE *const stream)
+{
+    List_elem_info *info = nullptr;
+    
+    for (int cnt = 0; cnt < lst->data_capacity;     ++cnt)
+    {
+        info = List_info_iterator(lst, cnt);
+        describe_node(info, stream,    cnt);
+    }
+    for (int cnt = 0; cnt < lst->data_capacity - 1; ++cnt) fprintf(stream, "node%d->node%d[weight=10000, style=\"invis\"]", cnt, cnt + 1);
+    for (int cnt = 0; cnt < lst->data_capacity;     ++cnt)
+    {
+        info = List_info_iterator(lst, cnt);
+        if (info->next != nullptr)  fprintf(stream, "node%d->node%d[weight=0, color=\"red\"]\n", info->index, info->next->index);
+    }
 }
 
 static void describe_node(List_elem_info *info, FILE *const stream, const int number)
@@ -681,31 +721,31 @@ static void describe_node(List_elem_info *info, FILE *const stream, const int nu
     {
         if (info->next != nullptr)
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d \n| index = %d \n| next = %d \n| prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                         info->is_free,
-                                                                                                         info->index,
-                                                                                                         info->next->index);
+                            "label=\"{is_free = %d} \n| {index = %d} \n| {next = %d} \n| {prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                               info->is_free,
+                                                                                                               info->index,
+                                                                                                               info->next->index);
         else
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d \n| index = %d \n| next = NULL \n| prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                           info->is_free,
-                                                                                                           info->index  );
+                            "label=\"{is_free = %d} \n| {index = %d} \n| {next = NULL} \n| {prev = NULL}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                                 info->is_free,
+                                                                                                                 info->index  );
     }
     else //info->prev != nullptr
     {
         if (info->next != nullptr)
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d \n| index = %d \n| next = %d \n| prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                       info->is_free,
-                                                                                                       info->index,
-                                                                                                       info->next->index,
-                                                                                                       info->prev->index);
+                            "label=\"{is_free = %d \n}| {index = %d} \n| {next = %d} \n| {prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                             info->is_free,
+                                                                                                             info->index,
+                                                                                                             info->next->index,
+                                                                                                             info->prev->index);
         else
             fprintf(stream, "node%d[color=\"%s\", fillcolor=\"%s\""
-                            "label=\"{is_free = %d \n| index = %d \n| next = NULL \n| prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
-                                                                                                         info->is_free,
-                                                                                                         info->index,
-                                                                                                         info->prev->index);
+                            "label=\"{is_free = %d} \n| {index = %d} \n| {next = NULL} \n| {prev = %d}\"]\n" , number, color_names[color], color_names[fillcolor],
+                                                                                                               info->is_free,
+                                                                                                               info->index,
+                                                                                                               info->prev->index);
     }
 }
 

@@ -1,0 +1,43 @@
+digraph {
+rankdir=LR
+node[shape=record, style="rounded, filled", fontsize=8]
+node0[color="black", fillcolor="lightgrey"label="{is_free = 0 
+}| {index = 0} 
+| {next = 1} 
+| {prev = 4}"]
+node1[color="darkgreen", fillcolor="lightgreen"label="{is_free = 0 
+}| {index = 1} 
+| {next = 5} 
+| {prev = 0}"]
+node2[color="darkblue", fillcolor="lightblue"label="{is_free = 1} 
+| {index = 2} 
+| {next = 6} 
+| {prev = NULL}"]
+node3[color="darkgreen", fillcolor="lightgreen"label="{is_free = 0 
+}| {index = 3} 
+| {next = 4} 
+| {prev = 5}"]
+node4[color="darkgreen", fillcolor="lightgreen"label="{is_free = 0 
+}| {index = 4} 
+| {next = 0} 
+| {prev = 3}"]
+node5[color="darkgreen", fillcolor="lightgreen"label="{is_free = 0 
+}| {index = 5} 
+| {next = 3} 
+| {prev = 1}"]
+node6[color="darkblue", fillcolor="lightblue"label="{is_free = 1} 
+| {index = 6} 
+| {next = 7} 
+| {prev = NULL}"]
+node7[color="darkblue", fillcolor="lightblue"label="{is_free = 1} 
+| {index = 7} 
+| {next = NULL} 
+| {prev = NULL}"]
+node0->node1[weight=10000, color="red"]
+node1->node5[weight=10000, color="red"]
+node5->node3[weight=10000, color="red"]
+node3->node4[weight=10000, color="red"]
+node4->node0[weight=0    , color="red"]
+node2->node6[weight=10000, color="red"]
+node6->node7[weight=10000, color="red"]
+}

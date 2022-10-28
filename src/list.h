@@ -42,6 +42,12 @@ enum LIST_ERRORS
     MEMORY_LIMIT_EXCEEDED   ,
 };
 
+enum GRAPH_MODE
+{
+    ORDER           ,
+    INDEX
+};
+
 /*__________________________________USER_MACRO_DEFINITIONS___________________________________*/
 
 #define List_ctor(lst, elem_size)                                                               \
@@ -156,7 +162,7 @@ enum LIST_ERRORS
 
 void              List_dump             (List *const lst);
 void              List_simple_dump      (List *const lst);
-void              List_graph_order_dump (List *const lst);
+void              List_graph_dump       (List *const lst, GRAPH_MODE mode);
 
 int              _List_line             (List *const lst);
 
