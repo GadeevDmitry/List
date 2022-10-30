@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
 
 #include "src/list.h"
 
@@ -27,6 +26,8 @@ int main()
     List_push_order(&test, 3, &(i = {9, 9}));
     List_push_order(&test, 1, &(i = {7, 7}));
     List_pop       (&test, 2);
+
+    //List_dump(&test);
 
     int all = test.data_size - 1;
 
