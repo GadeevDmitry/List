@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <inttypes.h>
 #include <assert.h>
 
 #define YELLOW "<font color=Gold>"
@@ -59,7 +58,7 @@ void log_char_ptr      (const char *str_name, const char *str);
 
 void log_param_place   (const char   *file,
                         const char   *func,
-                        const int32_t line);
+                        const int     line);
 
 /*______________________________ADDITIONAL_FUNCTION_DECLARATIONS_____________________________*/
 

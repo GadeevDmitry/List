@@ -1,14 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include <assert.h>
 
 #include "log.h"
 
 struct var_declaration
 {
-    const char *name_file, *name_func, *name_var;
-    uint32_t    line;
+    const char  *name_file, *name_func, *name_var;
+    unsigned int line;
 };
 
 const var_declaration poison_var_declaration = 
@@ -33,7 +32,7 @@ const var_declaration poison_var_declaration =
 *
 *   @return nothing
 */
-void var_ctor (var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint32_t line);
+void var_ctor (var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const unsigned int line);
 
 /**
 *   @brief "var_declaration" destructor. Fills variable by poison-values.
@@ -56,7 +55,7 @@ void var_dump (var_declaration *const var);
 
 /*__________________________________________________________________________*/
 
-void var_ctor(var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const uint32_t line)
+void var_ctor(var_declaration *const var, const char *name_file, const char *name_func, const char *name_var, const unsigned int line)
 {
     assert(var != nullptr);
     
