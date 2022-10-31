@@ -45,6 +45,9 @@ enum LIST_ERRORS
 #define List_ctor(lst, elem_size)                                                               \
        if (true)                                                                                \
        {                                                                                        \
+            log_place ();                                                                       \
+            log_header("LIST CTOR\n");                                                          \
+                                                                                                \
             int ret_ctor = _List_ctor(lst, elem_size, __FILE__,                                 \
                                                       __PRETTY_FUNCTION__,                      \
                                                       #lst,                                     \
@@ -53,152 +56,200 @@ enum LIST_ERRORS
             if (ret_ctor == -1)                                                                 \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
-            if (ret_ctor != OK)                                                                 \
+            else if (ret_ctor != OK)                                                            \
             {                                                                                   \
                 log_place();                                                                    \
                 List_error(ret_ctor);                                                           \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
        }
 
 #define List_dtor(lst)                                                                          \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST DTOR\n");                                                          \
+                                                                                                \
             int ret_dtor = _List_dtor(lst);                                                     \
                                                                                                 \
             if (ret_dtor == -1)                                                                 \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_insert(lst, index, push_val)                                                       \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST INSERT\n");                                                        \
+                                                                                                \
             int ret_insert = _List_insert(lst, index, push_val);                                \
                                                                                                 \
             if (ret_insert == -1)                                                               \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
-            if (ret_insert != OK)                                                               \
+            else if (ret_insert != OK)                                                          \
             {                                                                                   \
                 log_place();                                                                    \
                 List_error(ret_insert);                                                         \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_erase(lst, index)                                                                  \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST ERASE\n");                                                         \
+                                                                                                \
             int ret_erase = _List_erase(lst, index);                                            \
                                                                                                 \
             if (ret_erase != OK)                                                                \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_get(lst, index, pull_val)                                                          \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST GET\n");                                                           \
+                                                                                                \
             int ret_get = _List_get(lst, index, pull_val);                                      \
                                                                                                 \
             if (ret_get != OK)                                                                  \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_push_front(lst, push_val)                                                          \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST PUSH FRONT\n");                                                    \
+                                                                                                \
             int ret_push_front = _List_push_front(lst, push_val);                               \
                                                                                                 \
             if (ret_push_front == -1)                                                           \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
-            if (ret_push_front != OK)                                                           \
+            else if (ret_push_front != OK)                                                      \
             {                                                                                   \
                 log_place();                                                                    \
                 List_error(ret_push_front);                                                     \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_push_back(lst, push_val)                                                           \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST PUSH BACK\n");                                                     \
+                                                                                                \
             int ret_push_back = _List_push_back(lst, push_val);                                 \
                                                                                                 \
             if (ret_push_back == -1)                                                            \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
-            if (ret_push_back != OK)                                                            \
+            else if (ret_push_back != OK)                                                       \
             {                                                                                   \
                 log_place();                                                                    \
                 List_error(ret_push_back);                                                      \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
   
 #define List_pop_front(lst)                                                                     \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST POP FRONT\n");                                                     \
+                                                                                                \
             int ret_pop_front = _List_pop_front(lst);                                           \
                                                                                                 \
             if (ret_pop_front != OK)                                                            \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_pop_back(lst)                                                                      \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST POP BACK\n");                                                      \
+                                                                                                \
             int ret_pop_back = _List_pop_back(lst);                                             \
                                                                                                 \
             if (ret_pop_back != OK)                                                             \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_front(lst, pull_val)                                                               \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST FRONT\n");                                                         \
+                                                                                                \
             int ret_front = _List_front(lst, pull_val);                                         \
                                                                                                 \
             if (ret_front != OK)                                                                \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 #define List_back(lst, pull_val)                                                                \
         if (true)                                                                               \
         {                                                                                       \
+            log_place ();                                                                       \
+            log_header("LIST BACK\n");                                                          \
+                                                                                                \
             int ret_back = _List_back(lst, pull_val);                                           \
                                                                                                 \
             if (ret_back != OK)                                                                 \
             {                                                                                   \
                 log_place();                                                                    \
-                return -1;                                                                      \
             }                                                                                   \
+            else List_graph_dump(lst);                                                          \
+                                                                                                \
+            log_message("<hr>\n");                                                              \
         }
 
 /*________________________________USER_FUNCTION_DECLARATIONS_________________________________*/

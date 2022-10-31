@@ -1,23 +1,7 @@
 digraph {
 rankdir=LR
 node[shape=record, style="rounded, filled", fontsize=8]
-node0[color="black", fillcolor="lightgrey"label="{is_free = 0 
-}| {index = 0} 
-| {next = 0} 
-| {prev = 0}"]
-node1[color="darkblue", fillcolor="lightblue"label="{is_free = 1} 
-| {index = 1} 
-| {next = 2} 
-| {prev = NULL}"]
-node2[color="darkblue", fillcolor="lightblue"label="{is_free = 1} 
-| {index = 2} 
-| {next = 3} 
-| {prev = NULL}"]
-node3[color="darkblue", fillcolor="lightblue"label="{is_free = 1} 
-| {index = 3} 
-| {next = NULL} 
-| {prev = NULL}"]
-node0->node1[weight=10000, style="invis"]node1->node2[weight=10000, style="invis"]node2->node3[weight=10000, style="invis"]node0->node0[weight=0, color="red"]
-node1->node2[weight=0, color="red"]
-node2->node3[weight=0, color="red"]
+node0[color="black", fillcolor="lightgrey"label="{data = (nil)} 
+| {prev = 0x563823a07480} 
+| {next = 0x563823a07480}"]node0->node0 [weight=0    , color="red"]
 }

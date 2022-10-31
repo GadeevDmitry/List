@@ -247,13 +247,13 @@ static unsigned int _List_node_verify(List *const lst)
 
     for (int cnt = 1; cnt < lst->data_size; ++cnt)
     {
-        if (cur_node ==        nullptr) return INVALID_NODE_CYCLE;
-        if (cur_node == lst->fictional) return INVALID_NODE_CYCLE;
+        if (cur_node ==        nullptr) return 1 << INVALID_NODE_CYCLE;
+        if (cur_node == lst->fictional) return 1 << INVALID_NODE_CYCLE;
 
         cur_node = cur_node->next;
     }
 
-    if (cur_node != lst->fictional) return INVALID_NODE_CYCLE;
+    if (cur_node != lst->fictional) return 1 << INVALID_NODE_CYCLE;
     return OK;
 }
 
@@ -366,7 +366,7 @@ void List_graph_dump(List *const lst)
     char cmd[graph_cmd_size] = "";
     sprintf     (cmd, "dot %s -T png -o dump_png/List_graph_dump%d.png", output_file, cur_dump);
     system      (cmd);
-    log_message ("<img width=95%% src=dump_png/List_graph_dump%d.png>\n", cur_dump);
+    log_message ("<img src=dump_png/List_graph_dump%d.png>\n", cur_dump);
 
     fclose(stream);
     ++cur_dump;
@@ -384,8 +384,10 @@ static void List_graph_dump_generate(List *const lst, FILE *const stream)
     node = lst->fictional;
     for (int cnt = 0; cnt < lst->data_size && node != nullptr; ++cnt)
     {
-        if (node->next != nullptr) fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n", cnt, cnt+1);
+        if (node->next == lst->fictional) fprintf(stream, "node%d->node0 [weight=0    , color=\"red\"]\n", cnt);
+        else if (node->next !=   nullptr) fprintf(stream, "node%d->node%d[weight=10000, color=\"red\"]\n", cnt, cnt+1);
         else                       break;
+        node = node->next;
     }
 }
 
@@ -439,6 +441,13 @@ int _List_dtor(List *const lst)
 {
     List_verify(lst);
 
+    if (lst->data_size == 1)
+    {
+       *lst = poison_list;
+       var_dtor(&lst->var_info);
+       return OK;
+    }
+
     List_node *node = lst->fictional->prev;
     while (true)
     {
@@ -447,6 +456,7 @@ int _List_dtor(List *const lst)
         
         if  (node->prev == lst->fictional)
         {
+            free(node->data);
             free(node);
             break;
         }
@@ -480,6 +490,8 @@ int _List_insert(List *const lst, int index, void *const push_val)
     pocket_node->next = pushed_node      ;
     pushed_node->next->prev = pushed_node;
 
+    ++lst->data_size;
+    
     List_verify(lst);
     return OK;
 }
@@ -497,6 +509,8 @@ int _List_erase(List *const lst, int index)
 
     free(node->data);
     free(node);
+
+    --lst->data_size;
 
     List_verify(lst);
     return OK;
